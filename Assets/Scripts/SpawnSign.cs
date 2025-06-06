@@ -49,7 +49,8 @@ public class SpawnSign : MonoBehaviour {
     }
     
     
-    private float getRandomDistance() {
+    private float getRandomDistance()
+    {
         return Random.Range(distanceBase-distanceOffset, distanceBase+distanceOffset);
     }
 
@@ -86,7 +87,8 @@ public class SpawnSign : MonoBehaviour {
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start() {
+    void Start()
+    {
         signSpawnDisplacement = Vector3.right * xDisplacement + Vector3.forward * 15;
         initialiseSignDisplacement();
         currentSign = Instantiate(signObject, userCamera.transform.position + signSpawnDisplacement, transform.rotation);
@@ -104,7 +106,9 @@ public class SpawnSign : MonoBehaviour {
             Destroy(previousSign);
             previousSign = currentSign;
             initialiseSignDisplacement();
-            currentSign = Instantiate(signObject, userCamera.transform.position + relativeSpawnDisplacement, transform.rotation);
+
+            Quaternion userDirectionRotation = Quaternion.Euler(0, userCamera.transform.eulerAngles.y, 0);
+            currentSign = Instantiate(signObject, userCamera.transform.position + relativeSpawnDisplacement, userDirectionRotation);
         }
         
         Vector3 userPosition = userCamera.transform.position;
