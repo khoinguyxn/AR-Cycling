@@ -1,15 +1,17 @@
 using UnityEngine;
 
-public class SpawnSign : MonoBehaviour {
+
+public class SpawnSign : MonoBehaviour
+{
     //ATTRIBUTES
-    public GameObject signObject;
-    public Camera userCamera;
+    public GameObject signObject; //Sign object to spawn.
+    public Camera userCamera; //Reference to the camera (which is used to get the current position and rotation).
     public float distanceBase = 40;
     public float distanceOffset = 10;
     public float xDisplacement = 0;
     private float distanceUntilSpawnSign;
     private Vector2 userInitialPosition;
-    private Vector3 signSpawnDisplacement = Vector3.forward*15; //Vector3 so it can be added to the user's position.
+    private Vector3 signSpawnDisplacement = Vector3.forward * 15; //Vector3 so it can be added to the user's position.
     private GameObject currentSign;
     private GameObject previousSign;
     private Vector3 userPositionTracker;
@@ -47,11 +49,11 @@ public class SpawnSign : MonoBehaviour {
         Vector2 displacementVector = new Vector2(userCamera.transform.position.x - userInitialPosition.x, userCamera.transform.position.z - userInitialPosition.y);
         return displacementVector.magnitude;
     }
-    
-    
+
+
     private float getRandomDistance()
     {
-        return Random.Range(distanceBase-distanceOffset, distanceBase+distanceOffset);
+        return Random.Range(distanceBase - distanceOffset, distanceBase + distanceOffset);
     }
 
 
@@ -59,7 +61,7 @@ public class SpawnSign : MonoBehaviour {
     {
         Vector3 userPosition = userCamera.transform.position;
         Vector3 movementVector = new Vector3(userPosition.x - userPositionTracker.x, userPositionTracker.y - userPosition.y, userPosition.z - userPositionTracker.z);
-        
+
         return movementVector;
     }
 
@@ -71,10 +73,10 @@ public class SpawnSign : MonoBehaviour {
         Vector2 a = forwardVector; //Absolute forward
         Vector2 b = relativeVector; //Absolute displacement
         Vector2 c = referenceVector; //Relative forward
-        
+
         return new Vector2(
             dotProduct2(a, b) / (a.magnitude * b.magnitude) * c.x - crossProduct2(a, b) / (a.magnitude * b.magnitude) * c.y,
-            crossProduct2(a, b) / (a.magnitude*b.magnitude) * c.x + dotProduct2(a, b) / (a.magnitude * b.magnitude) * c.y
+            crossProduct2(a, b) / (a.magnitude * b.magnitude) * c.x + dotProduct2(a, b) / (a.magnitude * b.magnitude) * c.y
         );
     }
 
@@ -110,7 +112,7 @@ public class SpawnSign : MonoBehaviour {
             Quaternion userDirectionRotation = Quaternion.Euler(0, userCamera.transform.eulerAngles.y, 0);
             currentSign = Instantiate(signObject, userCamera.transform.position + relativeSpawnDisplacement, userDirectionRotation);
         }
-        
+
         Vector3 userPosition = userCamera.transform.position;
         userPositionTracker.x = userPosition.x;
         userPositionTracker.y = userPosition.y;
