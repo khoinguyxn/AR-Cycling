@@ -1,3 +1,4 @@
+using MixedReality.Toolkit;
 using UnityEngine;
 
 public class SpawnModel : SpawnObject
@@ -9,19 +10,36 @@ public class SpawnModel : SpawnObject
 
 
     //METHODS
+    private void addStatefulInteractable(GameObject modelObject)
+    {
+        StatefulInteractable statefulInteractable = modelObject.AddComponent<StatefulInteractable>();
+        GazeControl gazeControl = modelObject.AddComponent<GazeControl>();
+        statefulInteractable.IsGazeHovered.OnEntered.AddListener(_ => gazeControl.startGaze());
+        statefulInteractable.IsGazeHovered.OnExited.AddListener(_ => gazeControl.endGaze());
+    }
+
+
     protected override GameObject spawnObject(Vector3 position, Quaternion rotation)
     {
         int modelIndex = Random.Range(0, models.Length - 1);
         GameObject model = models[modelIndex];
-        RuntimeAnimatorController animatorController = animatorControllers[modelIndex];
 
-        Animator animator = model.GetComponent<Animator>();
+        GameObject modelObject = Instantiate(model, position, rotation);
+        addStatefulInteractable(modelObject);
+
+        if (modelObject.GetComponent<Collider>() == null)
+        {
+            modelObject.AddComponent<BoxCollider>();
+        }
+
+        RuntimeAnimatorController animatorController = animatorControllers[modelIndex];
+        Animator animator = modelObject.GetComponent<Animator>();
         if (animator == null)
         {
-            animator = model.AddComponent<Animator>();
+            animator = modelObject.AddComponent<Animator>();
         }
         animator.runtimeAnimatorController = animatorController;
 
-        return Instantiate(model, position, rotation);
+        return modelObject;
     }
 }
