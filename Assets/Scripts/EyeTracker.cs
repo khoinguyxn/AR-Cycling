@@ -11,6 +11,7 @@ public class EyeTracker : MonoBehaviour
     public GazeInteractor gazeInteractor;
     public GameObject gazeIndicator;
     private GameObject gazePointer;
+    public GameObject userCamera;
 
 
 
@@ -47,6 +48,10 @@ public class EyeTracker : MonoBehaviour
             //     gazePointer.transform.position = hit.point;
             //     WriteTrackingPoint(hit.point);
             // }
+        }
+        else
+        {
+            gazePointer.transform.position = userCamera.transform.position;
         }
     }
     
