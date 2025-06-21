@@ -10,7 +10,7 @@ public class SignTexture : MonoBehaviour {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start() {
         //Select random sign texture
-        Texture signTexture = signTextures[Random.Range(0, signTextures.Length-1)];
+        Texture signTexture = signTextures[Random.Range(0, signTextures.Length)];
 
         //Set texture
         signMaterial.mainTexture = signTexture;
