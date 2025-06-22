@@ -1,11 +1,13 @@
 using MixedReality.Toolkit;
+using UnityEditor;
 using UnityEngine;
 
 public class SpawnModel : SpawnObject
 {
     //ATTRIBUTES
-    public GameObject[] models;
-    public RuntimeAnimatorController[] animatorControllers;
+    // public GameObject[] models;
+    // public RuntimeAnimatorController[] animatorControllers;
+    public Model[] models;
 
 
 
@@ -21,10 +23,10 @@ public class SpawnModel : SpawnObject
 
     protected override GameObject spawnObject(Vector3 position, Quaternion rotation)
     {
-        int modelIndex = Random.Range(0, models.Length - 1);
-        GameObject model = models[modelIndex];
+        int modelIndex = Random.Range(0, models.Length);
+        Model model = models[modelIndex];
 
-        GameObject modelObject = Instantiate(model, position, rotation);
+        GameObject modelObject = Instantiate(model.model, position, rotation);
         addStatefulInteractable(modelObject);
 
         if (modelObject.GetComponent<Collider>() == null)
@@ -32,13 +34,29 @@ public class SpawnModel : SpawnObject
             modelObject.AddComponent<BoxCollider>();
         }
 
-        RuntimeAnimatorController animatorController = animatorControllers[modelIndex];
+        RuntimeAnimatorController animatorController = model.animatorController;
         Animator animator = modelObject.GetComponent<Animator>();
         if (animator == null)
         {
             animator = modelObject.AddComponent<Animator>();
         }
         animator.runtimeAnimatorController = animatorController;
+
+        if (animatorController == null)
+        {
+            SpinningAnimation spinningAnimation = modelObject.GetComponent<SpinningAnimation>();
+            if (spinningAnimation == null)
+            {
+                spinningAnimation = modelObject.AddComponent<SpinningAnimation>();
+            }
+            spinningAnimation.model = modelObject;
+            spinningAnimation.setActive(true);
+            spinningAnimation.setDuration(model.spinningPeriod);
+        }
+
+        //Set transforms
+        modelObject.transform.rotation = model.rotation;
+        modelObject.transform.localScale = model.localScale;
 
         return modelObject;
     }
