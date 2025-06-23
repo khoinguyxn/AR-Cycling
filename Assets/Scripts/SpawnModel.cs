@@ -5,8 +5,6 @@ using UnityEngine;
 public class SpawnModel : SpawnObject
 {
     //ATTRIBUTES
-    // public GameObject[] models;
-    // public RuntimeAnimatorController[] animatorControllers;
     public Model[] models;
 
 

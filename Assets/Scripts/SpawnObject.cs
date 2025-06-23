@@ -82,6 +82,13 @@ public abstract class SpawnObject : MonoBehaviour
     }
 
 
+    private float getFacingAngle(Vector2 referenceVector)
+    {
+        Vector2 forwardVector = new Vector2(0, 1);
+        return Mathf.Acos(dotProduct2(forwardVector, referenceVector) / (forwardVector.magnitude * referenceVector.magnitude)) * 180 / Mathf.PI;
+    }
+
+
     private void initialiseSignDisplacement()
     {
         userInitialPosition = new Vector2(userCamera.transform.position.x, userCamera.transform.position.z);
@@ -94,7 +101,6 @@ public abstract class SpawnObject : MonoBehaviour
     {
         objectSpawnDisplacement = Vector3.right * xDisplacement + Vector3.forward * 15;
         initialiseSignDisplacement();
-        // currentObject = Instantiate(signObject, userCamera.transform.position + objectSpawnDisplacement, transform.rotation);
         currentObject = spawnObject(userCamera.transform.position + objectSpawnDisplacement, transform.rotation);
     }
 
@@ -104,16 +110,16 @@ public abstract class SpawnObject : MonoBehaviour
     {
         if (getUserDistance() >= distanceUntilSpawnObject)
         {
-            Vector2 relativeSpawnDisplacementUnit2 = getRelativeVector(unitVector2(getVector2(getMovementVector())), getVector2(objectSpawnDisplacement));
+            Vector2 referenceVector = unitVector2(getVector2(getMovementVector()));
+            Vector2 relativeSpawnDisplacementUnit2 = getRelativeVector(referenceVector, getVector2(objectSpawnDisplacement));
             Vector3 relativeSpawnDisplacementUnit = new Vector3(relativeSpawnDisplacementUnit2.x, 0, relativeSpawnDisplacementUnit2.y);
             Vector3 relativeSpawnDisplacement = relativeSpawnDisplacementUnit * objectSpawnDisplacement.magnitude;
             Destroy(previousObject);
             previousObject = currentObject;
             initialiseSignDisplacement();
 
-            Quaternion userDirectionRotation = Quaternion.Euler(0, userCamera.transform.eulerAngles.y, 0);
-            // currentObject = Instantiate(signObject, userCamera.transform.position + relativeSpawnDisplacement, userDirectionRotation);
-            currentObject = spawnObject(userCamera.transform.position + relativeSpawnDisplacement, userDirectionRotation);
+            Quaternion objectRotation = Quaternion.Euler(0, getFacingAngle(referenceVector), 0);
+            currentObject = spawnObject(userCamera.transform.position + relativeSpawnDisplacement, objectRotation);
         }
 
         Vector3 userPosition = userCamera.transform.position;
