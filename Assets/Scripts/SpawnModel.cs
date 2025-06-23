@@ -55,7 +55,7 @@ public class SpawnModel : SpawnObject
         }
 
         //Set transforms
-        modelObject.transform.rotation = model.rotation;
+        modelObject.transform.rotation = Quaternion.Euler(model.eulerRotation);
         modelObject.transform.localScale = model.localScale;
 
         return modelObject;
