@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using MixedReality.Toolkit.Input;
 using UnityEngine;
@@ -16,10 +17,17 @@ public class EyeTracker : MonoBehaviour
 
 
     //METHODS
-    private void WriteTrackingPoint(Vector3 hitPoint)
+    private void WriteTrackingPoint(RaycastHit hit)
     {
         // var relativePoint = objectOfInterest.transform.position - hitPoint;
         // trackerData.WriteLine(FormattableString.Invariant($"{relativePoint.x},{relativePoint.y},{relativePoint.z}"));
+        Transform currentObject = hit.collider.gameObject.transform;
+        while (currentObject.parent != null)
+        {
+            currentObject = currentObject.parent;
+        }
+        Debug.Log($"{currentObject.gameObject}, {Time.time}");
+        trackerData.WriteLine(FormattableString.Invariant($"{currentObject.gameObject}, {Time.time}"));
     }
 
 
@@ -43,15 +51,11 @@ public class EyeTracker : MonoBehaviour
         if (Physics.Raycast(ray, out var hit))
         {
             gazePointer.transform.position = hit.point;
-            // if (hit.collider.gameObject == objectOfInterest)
-            // {
-            //     gazePointer.transform.position = hit.point;
-            //     WriteTrackingPoint(hit.point);
-            // }
+            WriteTrackingPoint(hit);
         }
         else
         {
-            gazePointer.transform.position = userCamera.transform.position;
+            gazePointer.transform.position = userCamera.transform.position - Vector3.down * 2;
         }
     }
     
