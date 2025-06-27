@@ -9,14 +9,14 @@ public class GazeControl : MonoBehaviour
     //METHODS
     public void startGaze()
     {
-        Debug.Log("gazing");
-        timeActivated = Time.time;
+        // Debug.Log("gazing");
+        // timeActivated = Time.time;
     }
 
 
     public void endGaze()
     {
-        Debug.Log(Time.time - timeActivated);
+        // Debug.Log(Time.time - timeActivated);
     }
 
 

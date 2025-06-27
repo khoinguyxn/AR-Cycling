@@ -13,21 +13,29 @@ public class EyeTracker : MonoBehaviour
     public GameObject gazeIndicator;
     private GameObject gazePointer;
     public GameObject userCamera;
+    private GameObject currentGazingObject = null;
+    private float currentGazingTimer = 0;
 
 
 
     //METHODS
-    private void WriteTrackingPoint(RaycastHit hit)
+    private GameObject getGazingObject(RaycastHit hit)
     {
-        // var relativePoint = objectOfInterest.transform.position - hitPoint;
-        // trackerData.WriteLine(FormattableString.Invariant($"{relativePoint.x},{relativePoint.y},{relativePoint.z}"));
         Transform currentObject = hit.collider.gameObject.transform;
         while (currentObject.parent != null)
         {
             currentObject = currentObject.parent;
         }
-        Debug.Log($"{currentObject.gameObject}, {Time.time}");
-        trackerData.WriteLine(FormattableString.Invariant($"{currentObject.gameObject}, {Time.time}"));
+        return currentObject.gameObject;
+    }
+
+
+    private void WriteTrackingData()
+    {
+        // var relativePoint = objectOfInterest.transform.position - hitPoint;
+        // trackerData.WriteLine(FormattableString.Invariant($"{relativePoint.x},{relativePoint.y},{relativePoint.z}"));
+        Debug.Log($"{currentGazingObject}, {currentGazingTimer}");
+        trackerData.WriteLine(FormattableString.Invariant($"{currentGazingObject}, {currentGazingTimer}"));
     }
 
 
@@ -50,12 +58,41 @@ public class EyeTracker : MonoBehaviour
         var ray = new Ray(gazeInteractor.rayOriginTransform.position, gazeInteractor.rayOriginTransform.forward * 3);
         if (Physics.Raycast(ray, out var hit))
         {
+            //Update gaze indicator position
             gazePointer.transform.position = hit.point;
-            WriteTrackingPoint(hit);
+
+            //Get what the user is currently gazing at this frame
+            GameObject gazingObject = getGazingObject(hit);
+
+            //If still gazing at the same object, increment timer
+            if (gazingObject == currentGazingObject)
+            {
+                currentGazingTimer += Time.deltaTime * 1000f;
+            }
+
+            //Otherwise, record data (if applicable, i.e. was looking at something), reset timer and set to look at new object
+            else
+            {
+                if (currentGazingObject != null)
+                {
+                    WriteTrackingData();
+                }
+                currentGazingObject = gazingObject;
+                currentGazingTimer = 0;   
+            }
         }
         else
         {
+            //Reset gaze indicator position
             gazePointer.transform.position = userCamera.transform.position - Vector3.down * 2;
+
+            //Check if the user was gazing at something and if so, record data and reset timer
+            if (currentGazingObject != null)
+            {
+                WriteTrackingData();
+                currentGazingObject = null;
+                currentGazingTimer = 0;   
+            }
         }
     }
     

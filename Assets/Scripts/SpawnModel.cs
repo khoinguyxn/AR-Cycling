@@ -29,7 +29,7 @@ public class SpawnModel : SpawnObject
 
         if (modelObject.GetComponent<Collider>() == null)
         {
-            modelObject.AddComponent<BoxCollider>();
+            modelObject.AddComponent<SphereCollider>();
         }
 
         RuntimeAnimatorController animatorController = model.animatorController;
