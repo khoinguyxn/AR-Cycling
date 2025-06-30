@@ -5,7 +5,8 @@ using UnityEngine;
 public class SpawnModel : SpawnObject
 {
     //ATTRIBUTES
-    public Model[] models;
+    public ModelList[] models;
+    public int modelListIndex;
 
 
 
@@ -21,8 +22,8 @@ public class SpawnModel : SpawnObject
 
     protected override GameObject spawnObject(Vector3 position, Quaternion rotation)
     {
-        int modelIndex = Random.Range(0, models.Length);
-        Model model = models[modelIndex];
+        int modelIndex = Random.Range(0, models[modelListIndex].getLength());
+        Model model = models[modelListIndex].getModel(modelIndex);
 
         GameObject modelObject = Instantiate(model.model, position, rotation);
         addStatefulInteractable(modelObject);
