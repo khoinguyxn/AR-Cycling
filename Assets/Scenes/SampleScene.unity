@@ -178,30 +178,30 @@ MonoBehaviour:
       animatorController: {fileID: 0}
       eulerRotation: {x: 0, y: 0, z: -155}
       localScale: {x: 30, y: 30, z: 30}
-      spinningPeriod: 420
+      spinningPeriod: 5
   - models:
     - model: {fileID: 919132149155446097, guid: 69d2bac996c82a14b8314c529b08e1d7, type: 3}
       animatorController: {fileID: 0}
       eulerRotation: {x: 0, y: 0, z: 0}
       localScale: {x: 50, y: 50, z: 50}
-      spinningPeriod: 420
+      spinningPeriod: 5
     - model: {fileID: 919132149155446097, guid: de6f1459429f0674b8c1a3cd097f0d99, type: 3}
       animatorController: {fileID: 0}
       eulerRotation: {x: 0, y: 0, z: 0}
       localScale: {x: 50, y: 50, z: 50}
-      spinningPeriod: 420
+      spinningPeriod: 5
   - models:
     - model: {fileID: 919132149155446097, guid: 119bdc96b91f8a74aa21effe6e389cfc, type: 3}
       animatorController: {fileID: 0}
       eulerRotation: {x: 0, y: 0, z: 0}
       localScale: {x: 50, y: 50, z: 50}
-      spinningPeriod: 420
+      spinningPeriod: 5
     - model: {fileID: 919132149155446097, guid: a3f6f4de1a612244b8c9ba46a006ea8d, type: 3}
       animatorController: {fileID: 0}
       eulerRotation: {x: 0, y: 0, z: -155}
       localScale: {x: 30, y: 30, z: 30}
-      spinningPeriod: 420
-  modelListIndex: 1
+      spinningPeriod: 5
+  modelListIndex: 2
 --- !u!1 &652781823
 GameObject:
   m_ObjectHideFlags: 0

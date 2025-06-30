@@ -26,7 +26,7 @@ public class SpinningAnimation : MonoBehaviour
     void Start()
     {
         timer = 0;
-        rotationIncrement = duration / 360;
+        rotationIncrement = 360 / duration;
     }
 
     // Update is called once per frame
@@ -42,7 +42,7 @@ public class SpinningAnimation : MonoBehaviour
             {
                 timer = 0;
             }
-            model.transform.Rotate(0, rotationIncrement, 0);
+            model.transform.Rotate(0, rotationIncrement * Time.deltaTime, 0);
         }
     }
 }
