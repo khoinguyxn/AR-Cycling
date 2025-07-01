@@ -295,7 +295,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d7fb7e5634915d458683503260c3c7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gazeInteractor: {fileID: 1141223702}
+  gazeInteractor: {fileID: 1727980922}
   gazeIndicator: {fileID: 5106148382731904134, guid: cabddb8db8580af4cab426112ffcc9d9, type: 3}
   userCamera: {fileID: 777067282}
 --- !u!1 &705507993
@@ -400,17 +400,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 2351505566771328562, guid: acbf65a81ce2cf94f82a0809298acf70, type: 3}
   m_PrefabInstance: {fileID: 1401900441}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1141223702 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 529201713281613631, guid: acbf65a81ce2cf94f82a0809298acf70, type: 3}
-  m_PrefabInstance: {fileID: 1401900441}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1175590bcfccd6d44a4c8f9a15292536, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1200369736
 GameObject:
   m_ObjectHideFlags: 0
@@ -591,6 +580,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ad5b753b73e311143a85055b15cea562, type: 3}
+--- !u!114 &1727980922 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 529201713281613631, guid: acbf65a81ce2cf94f82a0809298acf70, type: 3}
+  m_PrefabInstance: {fileID: 1401900441}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1175590bcfccd6d44a4c8f9a15292536, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
