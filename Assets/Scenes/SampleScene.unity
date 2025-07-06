@@ -236,6 +236,18 @@ MonoBehaviour:
   distanceOffset: 10
   xDisplacement: -2
   signObject: {fileID: 1133941221978721132, guid: 9684383f8cd6c1245b7b7df308dc997c, type: 3}
+  signMaterial: {fileID: 2100000, guid: 814114abfa8d90548b4eab37b547e9ef, type: 2}
+  textures:
+  - textures:
+    - {fileID: 2800000, guid: 8f0f366c357ffc046b5ef1a269975255, type: 3}
+    - {fileID: 2800000, guid: 19f84f913202cb04dba43332bd13c17e, type: 3}
+  - textures:
+    - {fileID: 2800000, guid: b6682b70d4072fd4e8e4786e3e724972, type: 3}
+    - {fileID: 2800000, guid: 7a4dd565ce5108042b80da1148ab486e, type: 3}
+  - textures:
+    - {fileID: 2800000, guid: 9bb67aea3f041694fbe81eb95a6efcbc, type: 3}
+    - {fileID: 2800000, guid: 8f0f366c357ffc046b5ef1a269975255, type: 3}
+  textureListIndex: 0
 --- !u!4 &652781825
 Transform:
   m_ObjectHideFlags: 0
@@ -460,6 +472,18 @@ MonoBehaviour:
   distanceOffset: 10
   xDisplacement: 0
   signObject: {fileID: 507342489306372564, guid: 2a7afd1208b880c4699cfe278d535b45, type: 3}
+  signMaterial: {fileID: 2100000, guid: 814114abfa8d90548b4eab37b547e9ef, type: 2}
+  textures:
+  - textures:
+    - {fileID: 2800000, guid: 8f0f366c357ffc046b5ef1a269975255, type: 3}
+    - {fileID: 2800000, guid: 19f84f913202cb04dba43332bd13c17e, type: 3}
+  - textures:
+    - {fileID: 2800000, guid: b6682b70d4072fd4e8e4786e3e724972, type: 3}
+    - {fileID: 2800000, guid: 7a4dd565ce5108042b80da1148ab486e, type: 3}
+  - textures:
+    - {fileID: 2800000, guid: 9bb67aea3f041694fbe81eb95a6efcbc, type: 3}
+    - {fileID: 2800000, guid: 8f0f366c357ffc046b5ef1a269975255, type: 3}
+  textureListIndex: 0
 --- !u!20 &1324633326 stripped
 Camera:
   m_CorrespondingSourceObject: {fileID: 2351505566771328527, guid: acbf65a81ce2cf94f82a0809298acf70, type: 3}

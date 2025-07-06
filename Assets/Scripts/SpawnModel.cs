@@ -20,19 +20,17 @@ public class SpawnModel : SpawnObject
     }
 
 
-    protected override GameObject spawnObject(Vector3 position, Quaternion rotation)
+    private void addCollider(GameObject modelObject)
     {
-        int modelIndex = Random.Range(0, models[modelListIndex].getLength());
-        Model model = models[modelListIndex].getModel(modelIndex);
-
-        GameObject modelObject = Instantiate(model.model, position, rotation);
-        addStatefulInteractable(modelObject);
-
         if (modelObject.GetComponent<Collider>() == null)
         {
             modelObject.AddComponent<SphereCollider>();
         }
+    }
 
+
+    private void addAnimation(GameObject modelObject, Model model)
+    {
         RuntimeAnimatorController animatorController = model.animatorController;
         Animator animator = modelObject.GetComponent<Animator>();
         if (animator == null)
@@ -52,6 +50,19 @@ public class SpawnModel : SpawnObject
             spinningAnimation.setActive(true);
             spinningAnimation.setDuration(model.spinningPeriod);
         }
+    }
+
+
+    protected override GameObject spawnObject(Vector3 position, Quaternion rotation)
+    {
+        ModelList modelList = models[modelListIndex];
+        int modelIndex = Random.Range(0, modelList.getLength());
+        Model model = modelList.getModel(modelIndex);
+
+        GameObject modelObject = Instantiate(model.model, position, rotation);
+        addStatefulInteractable(modelObject);
+        addCollider(modelObject);
+        addAnimation(modelObject, model);
 
         //Set transforms
         modelObject.transform.rotation = Quaternion.Euler(model.eulerRotation);
