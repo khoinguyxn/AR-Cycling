@@ -1,10 +1,11 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 [System.Serializable]
 public class ModelList
 {
     //ATTRIBUTES
-    public Model[] models;
+    public List<Model> models;
 
 
 
@@ -17,6 +18,12 @@ public class ModelList
 
     public int getLength()
     {
-        return models.Length;
+        return models.Count;
+    }
+
+
+    public void popModel(int index)
+    {
+        models.RemoveAt(index);
     }
 }

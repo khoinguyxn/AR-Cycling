@@ -58,6 +58,7 @@ public class SpawnModel : SpawnObject
         ModelList modelList = models[modelListIndex];
         int modelIndex = Random.Range(0, modelList.getLength());
         Model model = modelList.getModel(modelIndex);
+        modelList.popModel(modelIndex);
 
         GameObject modelObject = Instantiate(model.model, position, rotation);
         addStatefulInteractable(modelObject);

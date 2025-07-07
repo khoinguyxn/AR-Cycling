@@ -1,10 +1,11 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 [System.Serializable]
 public class TextureList
 {
     //ATTRIBUTES
-    public Texture[] textures;
+    public List<Texture> textures;
 
 
 
@@ -17,6 +18,12 @@ public class TextureList
 
     public int getLength()
     {
-        return textures.Length;
+        return textures.Count;
+    }
+
+
+    public void popTexture(int index)
+    {
+        textures.RemoveAt(index);
     }
 }

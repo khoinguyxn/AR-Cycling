@@ -17,6 +17,7 @@ public class SpawnSign : SpawnObject
         TextureList textureList = textures[textureListIndex];
         int textureIndex = Random.Range(0, textureList.getLength());
         Texture texture = textureList.getTexture(textureIndex);
+        textureList.popTexture(textureIndex);
 
         GameObject signInstance = Instantiate(signObject, position, rotation);
 
