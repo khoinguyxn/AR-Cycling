@@ -7,6 +7,7 @@ public abstract class SpawnObject : MonoBehaviour
     public float distanceBase = 40;
     public float distanceOffset = 10;
     public float xDisplacement = 0;
+    public float yDisplacement = 0;
     private float distanceUntilSpawnObject;
     private Vector2 userInitialPosition;
     private Vector3 objectSpawnDisplacement = Vector3.forward * 15; //Vector3 so it can be added to the user's position.
@@ -101,7 +102,7 @@ public abstract class SpawnObject : MonoBehaviour
     {
         objectSpawnDisplacement = Vector3.right * xDisplacement + Vector3.forward * 15;
         initialiseSignDisplacement();
-        currentObject = spawnObject(userCamera.transform.position + objectSpawnDisplacement, transform.rotation);
+        currentObject = spawnObject(userCamera.transform.position + objectSpawnDisplacement + Vector3.up * yDisplacement, transform.rotation);
     }
 
 
@@ -118,8 +119,8 @@ public abstract class SpawnObject : MonoBehaviour
             previousObject = currentObject;
             initialiseSignDisplacement();
 
-            Quaternion objectRotation = Quaternion.Euler(0, getFacingAngle(referenceVector), 0);
-            currentObject = spawnObject(userCamera.transform.position + relativeSpawnDisplacement, objectRotation);
+            Quaternion objectRotation = Quaternion.Euler(0, -getFacingAngle(referenceVector), 0);
+            currentObject = spawnObject(userCamera.transform.position + relativeSpawnDisplacement + Vector3.up * yDisplacement, objectRotation);
         }
 
         Vector3 userPosition = userCamera.transform.position;

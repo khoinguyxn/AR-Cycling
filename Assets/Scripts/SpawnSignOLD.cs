@@ -1,7 +1,7 @@
 using UnityEngine;
 
 
-public class SpawnSign : SpawnObject
+public class SpawnSignOLD : SpawnObject
 {
     //ATTRIBUTES
     public GameObject signObject;
@@ -23,7 +23,8 @@ public class SpawnSign : SpawnObject
 
         signMaterial.mainTexture = texture;
 
-        MeshRenderer imageMeshRenderer = signInstance.GetComponent<MeshRenderer>();
+        GameObject signQuad = signInstance.transform.Find("SignBoard/SignQuad").gameObject;
+        MeshRenderer imageMeshRenderer = signQuad.GetComponent<MeshRenderer>();
         if (imageMeshRenderer != null)
         {
             imageMeshRenderer.material = signMaterial;
