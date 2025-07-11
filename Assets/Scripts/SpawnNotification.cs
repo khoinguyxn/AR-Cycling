@@ -1,14 +1,17 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class SpawnNotification : MonoBehaviour
 {
     //ATTRIBUTES
+    public SpawnPosition spawnPosition;
     public GameObject notificationControl;
     public Camera userCamera;
     public float distanceBase = 40;
     public float distanceOffset = 10;
-    private float xDisplacement = 0;
-    private float yDisplacement = 0;
+    // private float xDisplacement = 0;
+    // private float yDisplacement = 0;
+    private ObjectPosition objectPosition;
     private float distanceUntilSpawnObject;
     private Vector2 userInitialPosition;
     private Vector3 objectSpawnDisplacement = Vector3.forward * 20; //Vector3 so it can be added to the user's position.
@@ -18,6 +21,12 @@ public class SpawnNotification : MonoBehaviour
 
     private SpawnSign spawnSign;
     private SpawnModel spawnModel;
+    private static readonly Dictionary<SpawnPosition, ObjectPosition> objectPositionMap = new()
+    {
+        { SpawnPosition.side, new ObjectPosition(new Vector2(-3, 0), new Vector3(0, 0, 0)) },
+        { SpawnPosition.top, new ObjectPosition(new Vector2(0, 6), new Vector3(0, 0, 0)) },
+        { SpawnPosition.bottom, new ObjectPosition(new Vector2(0, -1.5f), new Vector3(90, 0, 0)) },
+    };
 
 
 
@@ -76,8 +85,7 @@ public class SpawnNotification : MonoBehaviour
 
     private float getFacingAngle(Vector2 referenceVector)
     {
-        Vector2 forwardVector = new Vector2(0, 1);
-        return Mathf.Acos(dotProduct2(forwardVector, referenceVector) / (forwardVector.magnitude * referenceVector.magnitude)) * 180 / Mathf.PI;
+        return Mathf.Atan2(referenceVector.x, referenceVector.y) * 180 / Mathf.PI;
     }
 
 
@@ -114,11 +122,13 @@ public class SpawnNotification : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        objectPosition = objectPositionMap[spawnPosition];
+
         spawnSign = notificationControl.GetComponent<SpawnSign>();
         spawnModel = notificationControl.GetComponent<SpawnModel>();
 
         initialiseSignDisplacement();
-        objectSpawnDisplacement = Vector3.right * xDisplacement + Vector3.forward * 15;
+        objectSpawnDisplacement = Vector3.right * objectPosition.getXDisplacement() + Vector3.forward * 15;
 
     }
 
@@ -130,8 +140,8 @@ public class SpawnNotification : MonoBehaviour
             Vector2 referenceVector = unitVector2(getVector2(getMovementVector()));
 
             Vector3 relativeSpawnDisplacement = getRelativeSpawnDisplacement(referenceVector);
-            Vector3 objectPosition = userCamera.transform.position + relativeSpawnDisplacement + Vector3.up * yDisplacement;
-            Quaternion objectRotation = Quaternion.Euler(0, -getFacingAngle(referenceVector), 0);
+            Vector3 instancePosition = userCamera.transform.position + relativeSpawnDisplacement + Vector3.up * objectPosition.getYDisplacement();
+            Quaternion instanceRotation;
 
             Destroy(previousObject);
             previousObject = currentObject;
@@ -139,11 +149,13 @@ public class SpawnNotification : MonoBehaviour
 
             if (Random.value < 0.5f)
             {
-                spawnSign.spawnObject(objectPosition, objectRotation);
+                instanceRotation = Quaternion.Euler(objectPosition.getXRotation(), getFacingAngle(referenceVector) + objectPosition.getYRotation(), objectPosition.getZRotation());
+                spawnSign.spawnObject(instancePosition, instanceRotation);
             }
             else
             {
-                spawnModel.spawnObject(objectPosition, objectRotation);
+                instanceRotation = Quaternion.Euler(0, 0, objectPosition.getZRotation());
+                spawnModel.spawnObject(instancePosition, instanceRotation);
             }
         }
 
