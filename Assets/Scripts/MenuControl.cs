@@ -1,84 +1,58 @@
+using System.Collections.Generic;
+using MixedReality.Toolkit.UX;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
-public class MenuController : MonoBehaviour
+public class MenuControl : MonoBehaviour
 {
-    [SerializeField] private GameObject topSignControl;
-    [SerializeField] private GameObject sideSignControl;
-    [SerializeField] private GameObject modelControl;
-    [SerializeField] private GameObject signSelectorOptions;
-    [SerializeField] private GameObject signSelector;
+    [SerializeField] private List<GameObject> notifications;
     [SerializeField] private GameObject gazeControl;
+    public DialogPool dialogPool;
+    [SerializeField] private GameObject menuDialog;
 
-    public void Activate3DModels(bool state)
+    private void Start()
     {
-        SetGameObjectActive(modelControl, state);
-        ToggleGameObjectActive(signSelector);
+        ShowMenuDialog();
     }
 
-    public void ActivateTopSign(bool state)
+    private void ShowMenuDialog()
     {
-        SetGameObjectActive(topSignControl, state);
+        var dialog = dialogPool.Get(prefab: menuDialog);
+
+        dialog.SetHeader("Welcome!")
+              .SetBody("This experiment explores Head-mounted displays (HMDs) " +
+                       "in the physical world by observing participants as they " +
+                       "cycle along a fixed outdoor track. At the same time, notifications" +
+                       "positioned at variable locations and of varying complexity are presented, " +
+                       "aiming to examine how both spatial positioning and visual complexity " +
+                       "influence cyclists' attention. The experiment will start right after this." +
+                       "Be ready!")
+              .SetPositive("Start", _ =>
+                                    {
+                                        dialog.Dismiss();
+
+                                        Debug.Log("Starting experiment!");
+                                        SelectARandomNotification();
+                                        StartEyeTracking();
+                                    })
+              .SetNegative("Quit", _ =>
+                                   {
+                                       dialog.Dismiss();
+
+                                       Debug.Log("End experiment!");
+                                       QuitApplication();
+                                   })
+              .Show();
     }
 
-    public void ActivateSideSign(bool state)
-    {
-        SetGameObjectActive(sideSignControl, state);
-    }
-
-    public void HandleSelect2DModelPositions(string position)
-    {
-        switch (position.ToLower())
-        {
-            case "top":
-                ActivateTopSign(true);
-                break;
-            case "side":
-                ActivateSideSign(true);
-                break;
-            default:
-                Debug.LogWarning($"Unknown position: {position}");
-                break;
-        }
-    }
-
-    public void ShowSignSelectorOptions()
-    {
-        ToggleGameObjectActive(signSelectorOptions);
-    }
-
-    public void QuitApplication()
+    private static void QuitApplication()
     {
         Application.Quit();
     }
 
-    public void StartApplication()
-    {
-        StartEyeTracking();
-        CloseMenu();
-    }
-
     private static void SetGameObjectActive(GameObject target, bool state)
     {
-        if (target != null)
-        {
-            target.SetActive(state);
-        }
-        else
-        {
-            Debug.LogWarning("Target GameObject is null");
-        }
-    }
-
-    private static void ToggleGameObjectActive(GameObject target)
-    {
-        if (target != null)
-        {
-            target.SetActive(!target.activeSelf);
-        }
-        else
-        {
-            Debug.LogWarning("Target GameObject is null");
-        }
+        target.SetActive(state);
     }
 
     private void StartEyeTracking()
@@ -86,8 +60,10 @@ public class MenuController : MonoBehaviour
         SetGameObjectActive(gazeControl, true);
     }
 
-    private void CloseMenu()
+    private void SelectARandomNotification()
     {
-        SetGameObjectActive(gameObject, false);
+        var randomIndex = Random.Range(0, notifications.Count);
+
+        SetGameObjectActive(notifications[randomIndex], true);
     }
 }
