@@ -1,7 +1,7 @@
 using UnityEngine;
 
 
-public class SpawnSign : SpawnObject
+public class SpawnSign : MonoBehaviour, IObjectSpawner
 {
     //ATTRIBUTES
     public GameObject signObject;
@@ -12,7 +12,7 @@ public class SpawnSign : SpawnObject
 
 
     //METHODS
-    protected override GameObject spawnObject(Vector3 position, Quaternion rotation)
+    public GameObject spawnObject(Vector3 position, Quaternion rotation)
     {
         TextureList textureList = textures[textureListIndex];
         int textureIndex = Random.Range(0, textureList.getLength());

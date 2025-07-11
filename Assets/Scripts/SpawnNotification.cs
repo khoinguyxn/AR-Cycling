@@ -1,26 +1,27 @@
 using UnityEngine;
 
-public abstract class SpawnObject : MonoBehaviour
+public class SpawnNotification : MonoBehaviour
 {
     //ATTRIBUTES
-    public Camera userCamera; //Reference to the camera (which is used to get the current position and rotation).
+    public GameObject notificationControl;
+    public Camera userCamera;
     public float distanceBase = 40;
     public float distanceOffset = 10;
-    public float xDisplacement = 0;
-    public float yDisplacement = 0;
+    private float xDisplacement = 0;
+    private float yDisplacement = 0;
     private float distanceUntilSpawnObject;
     private Vector2 userInitialPosition;
-    private Vector3 objectSpawnDisplacement = Vector3.forward * 15; //Vector3 so it can be added to the user's position.
+    private Vector3 objectSpawnDisplacement = Vector3.forward * 20; //Vector3 so it can be added to the user's position.
     private GameObject currentObject;
     private GameObject previousObject;
     private Vector3 userPositionTracker;
 
+    private SpawnSign spawnSign;
+    private SpawnModel spawnModel;
+
 
 
     //METHODS
-    protected abstract GameObject spawnObject(Vector3 position, Quaternion rotation);
-
-
     private float dotProduct2(Vector2 a, Vector2 b)
     {
         return a.x * b.x + a.y * b.y;
@@ -35,6 +36,10 @@ public abstract class SpawnObject : MonoBehaviour
 
     private Vector2 unitVector2(Vector2 v)
     {
+        if (v.magnitude == 0)
+        {
+            return new Vector2(0, 0);
+        }
         return v / v.magnitude;
     }
 
@@ -42,20 +47,6 @@ public abstract class SpawnObject : MonoBehaviour
     private Vector2 getVector2(Vector3 vector)
     {
         return new Vector2(vector.x, vector.z);
-    }
-
-
-    private float getUserDistance()
-    {
-        //x and z coordinates for Vector3, x and y coordinates for Vector2
-        Vector2 displacementVector = new Vector2(userCamera.transform.position.x - userInitialPosition.x, userCamera.transform.position.z - userInitialPosition.y);
-        return displacementVector.magnitude;
-    }
-
-
-    private float getRandomDistance()
-    {
-        return Random.Range(distanceBase - distanceOffset, distanceBase + distanceOffset);
     }
 
 
@@ -90,6 +81,29 @@ public abstract class SpawnObject : MonoBehaviour
     }
 
 
+    private Vector3 getRelativeSpawnDisplacement(Vector2 referenceVector)
+    {
+        Vector2 relativeSpawnDisplacementUnit2 = getRelativeVector(referenceVector, getVector2(objectSpawnDisplacement));
+        Vector3 relativeSpawnDisplacementUnit = new Vector3(relativeSpawnDisplacementUnit2.x, 0, relativeSpawnDisplacementUnit2.y);
+        Vector3 relativeSpawnDisplacement = relativeSpawnDisplacementUnit * objectSpawnDisplacement.magnitude;
+
+        return relativeSpawnDisplacement;
+    }
+
+
+    private float getUserDistance()
+    {
+        //x and z coordinates for Vector3, x and y coordinates for Vector2
+        Vector2 displacementVector = new Vector2(userCamera.transform.position.x - userInitialPosition.x, userCamera.transform.position.z - userInitialPosition.y);
+        return displacementVector.magnitude;
+    }
+
+
+    private float getRandomDistance()
+    {
+        return Random.Range(distanceBase - distanceOffset, distanceBase + distanceOffset);
+    }
+
     private void initialiseSignDisplacement()
     {
         userInitialPosition = new Vector2(userCamera.transform.position.x, userCamera.transform.position.z);
@@ -100,11 +114,14 @@ public abstract class SpawnObject : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        objectSpawnDisplacement = Vector3.right * xDisplacement + Vector3.forward * 15;
-        initialiseSignDisplacement();
-        currentObject = spawnObject(userCamera.transform.position + objectSpawnDisplacement + Vector3.up * yDisplacement, transform.rotation);
-    }
+        spawnSign = notificationControl.GetComponent<SpawnSign>();
+        spawnModel = notificationControl.GetComponent<SpawnModel>();
 
+        objectSpawnDisplacement = Vector3.right * xDisplacement + Vector3.forward * 15;
+
+        Debug.Log(userCamera.transform.position);
+
+    }
 
     // Update is called once per frame
     void Update()
@@ -112,15 +129,23 @@ public abstract class SpawnObject : MonoBehaviour
         if (getUserDistance() >= distanceUntilSpawnObject)
         {
             Vector2 referenceVector = unitVector2(getVector2(getMovementVector()));
-            Vector2 relativeSpawnDisplacementUnit2 = getRelativeVector(referenceVector, getVector2(objectSpawnDisplacement));
-            Vector3 relativeSpawnDisplacementUnit = new Vector3(relativeSpawnDisplacementUnit2.x, 0, relativeSpawnDisplacementUnit2.y);
-            Vector3 relativeSpawnDisplacement = relativeSpawnDisplacementUnit * objectSpawnDisplacement.magnitude;
+
+            Vector3 relativeSpawnDisplacement = getRelativeSpawnDisplacement(referenceVector);
+            Vector3 objectPosition = userCamera.transform.position + relativeSpawnDisplacement + Vector3.up * yDisplacement;
+            Quaternion objectRotation = Quaternion.Euler(0, -getFacingAngle(referenceVector), 0);
+
             Destroy(previousObject);
             previousObject = currentObject;
             initialiseSignDisplacement();
 
-            Quaternion objectRotation = Quaternion.Euler(0, -getFacingAngle(referenceVector), 0);
-            currentObject = spawnObject(userCamera.transform.position + relativeSpawnDisplacement + Vector3.up * yDisplacement, objectRotation);
+            if (Random.value < 0.5f)
+            {
+                spawnSign.spawnObject(objectPosition, objectRotation);
+            }
+            else
+            {
+                spawnModel.spawnObject(objectPosition, objectRotation);
+            }
         }
 
         Vector3 userPosition = userCamera.transform.position;

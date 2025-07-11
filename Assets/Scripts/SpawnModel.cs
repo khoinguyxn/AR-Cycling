@@ -1,8 +1,7 @@
 using MixedReality.Toolkit;
-using UnityEditor;
 using UnityEngine;
 
-public class SpawnModel : SpawnObject
+public class SpawnModel : MonoBehaviour, IObjectSpawner
 {
     //ATTRIBUTES
     public ModelList[] models;
@@ -53,7 +52,7 @@ public class SpawnModel : SpawnObject
     }
 
 
-    protected override GameObject spawnObject(Vector3 position, Quaternion rotation)
+    public GameObject spawnObject(Vector3 position, Quaternion rotation)
     {
         ModelList modelList = models[modelListIndex];
         int modelIndex = Random.Range(0, modelList.getLength());
