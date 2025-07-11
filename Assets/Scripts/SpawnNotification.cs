@@ -117,9 +117,8 @@ public class SpawnNotification : MonoBehaviour
         spawnSign = notificationControl.GetComponent<SpawnSign>();
         spawnModel = notificationControl.GetComponent<SpawnModel>();
 
+        initialiseSignDisplacement();
         objectSpawnDisplacement = Vector3.right * xDisplacement + Vector3.forward * 15;
-
-        Debug.Log(userCamera.transform.position);
 
     }
 
