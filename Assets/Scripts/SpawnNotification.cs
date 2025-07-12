@@ -5,16 +5,15 @@ public class SpawnNotification : MonoBehaviour
 {
     //ATTRIBUTES
     public SpawnPosition spawnPosition;
+    public float spawnDistance = 20;
     public GameObject notificationControl;
     public Camera userCamera;
-    public float distanceBase = 40;
-    public float distanceOffset = 10;
-    // private float xDisplacement = 0;
-    // private float yDisplacement = 0;
+    public float distanceBetweenObjectsBase = 40;
+    public float distanceBetweenObjectsOffset = 10;
     private ObjectPosition objectPosition;
     private float distanceUntilSpawnObject;
     private Vector2 userInitialPosition;
-    private Vector3 objectSpawnDisplacement = Vector3.forward * 20; //Vector3 so it can be added to the user's position.
+    private Vector3 objectSpawnDisplacement; //Vector3 so it can be added to the user's position.
     private GameObject currentObject;
     private GameObject previousObject;
     private Vector3 userPositionTracker;
@@ -109,7 +108,7 @@ public class SpawnNotification : MonoBehaviour
 
     private float getRandomDistance()
     {
-        return Random.Range(distanceBase - distanceOffset, distanceBase + distanceOffset);
+        return Random.Range(distanceBetweenObjectsBase - distanceBetweenObjectsOffset, distanceBetweenObjectsBase + distanceBetweenObjectsOffset);
     }
 
     private void initialiseSignDisplacement()
@@ -128,7 +127,7 @@ public class SpawnNotification : MonoBehaviour
         spawnModel = notificationControl.GetComponent<SpawnModel>();
 
         initialiseSignDisplacement();
-        objectSpawnDisplacement = Vector3.right * objectPosition.getXDisplacement() + Vector3.forward * 15;
+        objectSpawnDisplacement = Vector3.right * objectPosition.getXDisplacement() + Vector3.forward * spawnDistance;
 
     }
 
