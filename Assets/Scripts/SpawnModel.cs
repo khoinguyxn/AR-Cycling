@@ -1,11 +1,13 @@
+using System.Collections.Generic;
 using MixedReality.Toolkit;
 using UnityEngine;
 
 public class SpawnModel : MonoBehaviour, IObjectSpawner
 {
     //ATTRIBUTES
-    public ModelList[] models;
-    public int modelListIndex;
+    public List<Model> sideModels;
+    public List<Model> topModels;
+    public List<Model> bottomModels;
 
 
 
@@ -52,12 +54,29 @@ public class SpawnModel : MonoBehaviour, IObjectSpawner
     }
 
 
-    public GameObject spawnObject(Vector3 position, Quaternion rotation)
+    public GameObject spawnObject(SpawnPosition spawnPosition, Vector3 position, Quaternion rotation)
     {
-        ModelList modelList = models[modelListIndex];
-        int modelIndex = Random.Range(0, modelList.getLength());
-        Model model = modelList.getModel(modelIndex);
-        modelList.popModel(modelIndex);
+        List<Model> modelList;
+
+        switch (spawnPosition)
+        {
+            case SpawnPosition.side:
+                modelList = sideModels;
+                break;
+            case SpawnPosition.top:
+                modelList = topModels;
+                break;
+            case SpawnPosition.bottom:
+                modelList = bottomModels;
+                break;
+            default:
+                modelList = sideModels;
+                break;
+        }
+
+        int modelIndex = Random.Range(0, modelList.Count);
+        Model model = modelList[modelIndex];
+        modelList.RemoveAt(modelIndex);
 
         GameObject modelObject = Instantiate(model.model, position, rotation);
         addStatefulInteractable(modelObject);

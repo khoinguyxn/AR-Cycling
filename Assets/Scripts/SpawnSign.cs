@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 
 public class SpawnSign : MonoBehaviour, IObjectSpawner
@@ -6,18 +7,36 @@ public class SpawnSign : MonoBehaviour, IObjectSpawner
     //ATTRIBUTES
     public GameObject signObject;
     public Material signMaterial;
-    public TextureList[] textures;
-    public int textureListIndex;
+    public List<Texture> sideTextures;
+    public List<Texture> topTextures;
+    public List<Texture> bottomTextures;
 
 
 
     //METHODS
-    public GameObject spawnObject(Vector3 position, Quaternion rotation)
+    public GameObject spawnObject(SpawnPosition spawnPosition, Vector3 position, Quaternion rotation)
     {
-        TextureList textureList = textures[textureListIndex];
-        int textureIndex = Random.Range(0, textureList.getLength());
-        Texture texture = textureList.getTexture(textureIndex);
-        textureList.popTexture(textureIndex);
+        List<Texture> textureList;
+
+        switch (spawnPosition)
+        {
+            case SpawnPosition.side:
+                textureList = sideTextures;
+                break;
+            case SpawnPosition.top:
+                textureList = topTextures;
+                break;
+            case SpawnPosition.bottom:
+                textureList = bottomTextures;
+                break;
+            default:
+                textureList = sideTextures;
+                break;
+        }
+
+        int textureIndex = Random.Range(0, textureList.Count);
+        Texture texture = textureList[textureIndex];
+        textureList.RemoveAt(textureIndex);
 
         GameObject signInstance = Instantiate(signObject, position, rotation);
 

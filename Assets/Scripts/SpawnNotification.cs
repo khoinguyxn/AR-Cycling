@@ -20,7 +20,7 @@ public class SpawnNotification : MonoBehaviour
 
     private SpawnSign spawnSign;
     private SpawnModel spawnModel;
-    private static readonly Dictionary<SpawnPosition, ObjectPosition> objectPositionMap = new()
+    private readonly Dictionary<SpawnPosition, ObjectPosition> objectPositionMap = new Dictionary<SpawnPosition, ObjectPosition>
     {
         { SpawnPosition.side, new ObjectPosition(new Vector2(-3, 0), new Vector3(0, 0, 0)) },
         { SpawnPosition.top, new ObjectPosition(new Vector2(0, 6), new Vector3(0, 0, 0)) },
@@ -149,12 +149,12 @@ public class SpawnNotification : MonoBehaviour
             if (Random.value < 0.5f)
             {
                 instanceRotation = Quaternion.Euler(objectPosition.getXRotation(), getFacingAngle(referenceVector) + objectPosition.getYRotation(), objectPosition.getZRotation());
-                spawnSign.spawnObject(instancePosition, instanceRotation);
+                spawnSign.spawnObject(spawnPosition, instancePosition, instanceRotation);
             }
             else
             {
                 instanceRotation = Quaternion.Euler(0, 0, objectPosition.getZRotation());
-                spawnModel.spawnObject(instancePosition, instanceRotation);
+                spawnModel.spawnObject(spawnPosition, instancePosition, instanceRotation);
             }
         }
 
