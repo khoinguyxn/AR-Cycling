@@ -173,7 +173,7 @@ public class SpawnNotification : MonoBehaviour
 
         objectSpawnDisplacement = Vector3.right * objectPosition.getXDisplacement() + Vector3.forward * spawnDistance;
         Vector2 referenceVector = unitVector2(getVector2(getMovementVector()));
-        spawnNotificationInstance(userCamera.transform.position + objectSpawnDisplacement, referenceVector);
+        spawnNotificationInstance(userCamera.transform.position + objectSpawnDisplacement + Vector3.up * objectPosition.getYDisplacement(), referenceVector);
     }
 
     // Update is called once per frame
