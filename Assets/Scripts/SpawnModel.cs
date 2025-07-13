@@ -12,6 +12,29 @@ public class SpawnModel : MonoBehaviour, IObjectSpawner
 
 
     //METHODS
+    private List<Model> getModelList(SpawnPosition spawnPosition)
+    {
+        switch (spawnPosition)
+        {
+            case SpawnPosition.side:
+                return sideModels;
+            case SpawnPosition.top:
+                return topModels;
+            case SpawnPosition.bottom:
+                return bottomModels;
+            default:
+                return sideModels;
+        }
+    }
+
+
+    public bool getListEmpty(SpawnPosition spawnPosition)
+    {
+        List<Model> modelList = getModelList(spawnPosition);
+        return modelList.Count == 0;
+    }
+
+
     private void addStatefulInteractable(GameObject modelObject)
     {
         StatefulInteractable statefulInteractable = modelObject.AddComponent<StatefulInteractable>();
@@ -56,23 +79,7 @@ public class SpawnModel : MonoBehaviour, IObjectSpawner
 
     public GameObject spawnObject(SpawnPosition spawnPosition, Vector3 position, Quaternion rotation)
     {
-        List<Model> modelList;
-
-        switch (spawnPosition)
-        {
-            case SpawnPosition.side:
-                modelList = sideModels;
-                break;
-            case SpawnPosition.top:
-                modelList = topModels;
-                break;
-            case SpawnPosition.bottom:
-                modelList = bottomModels;
-                break;
-            default:
-                modelList = sideModels;
-                break;
-        }
+        List<Model> modelList = getModelList(spawnPosition);
 
         int modelIndex = Random.Range(0, modelList.Count);
         Model model = modelList[modelIndex];

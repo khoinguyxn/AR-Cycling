@@ -118,6 +118,20 @@ public class SpawnNotification : MonoBehaviour
     }
 
 
+    private GameObject spawnSignInstance(Vector3 instancePosition, Vector2 referenceVector)
+    {
+        Quaternion instanceRotation = Quaternion.Euler(objectPosition.getXRotation(), getFacingAngle(referenceVector) + objectPosition.getYRotation(), objectPosition.getZRotation());
+        return spawnSign.spawnObject(spawnPosition, instancePosition, instanceRotation);
+    }
+
+
+    private GameObject spawnModelInstance(Vector3 instancePosition)
+    {
+        Quaternion instanceRotation = Quaternion.Euler(0, 0, objectPosition.getZRotation());
+        return spawnModel.spawnObject(spawnPosition, instancePosition, instanceRotation);
+    }
+
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -140,21 +154,30 @@ public class SpawnNotification : MonoBehaviour
 
             Vector3 relativeSpawnDisplacement = getRelativeSpawnDisplacement(referenceVector);
             Vector3 instancePosition = userCamera.transform.position + relativeSpawnDisplacement + Vector3.up * objectPosition.getYDisplacement();
-            Quaternion instanceRotation;
 
             Destroy(previousObject);
             previousObject = currentObject;
             initialiseSignDisplacement();
 
-            if (Random.value < 0.5f)
+            if (spawnSign.getListEmpty(spawnPosition))
             {
-                instanceRotation = Quaternion.Euler(objectPosition.getXRotation(), getFacingAngle(referenceVector) + objectPosition.getYRotation(), objectPosition.getZRotation());
-                spawnSign.spawnObject(spawnPosition, instancePosition, instanceRotation);
+                currentObject = spawnModelInstance(instancePosition);
+            }
+            else if (spawnModel.getListEmpty(spawnPosition))
+            {
+                currentObject = spawnSignInstance(instancePosition, referenceVector);
             }
             else
             {
-                instanceRotation = Quaternion.Euler(0, 0, objectPosition.getZRotation());
-                spawnModel.spawnObject(spawnPosition, instancePosition, instanceRotation);
+                if (Random.value < 0.5f)
+                {
+                    currentObject = spawnSignInstance(instancePosition, referenceVector);
+                }
+                else
+                {
+
+                    currentObject = spawnModelInstance(instancePosition);
+                }
             }
         }
 

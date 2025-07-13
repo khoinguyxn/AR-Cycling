@@ -14,25 +14,32 @@ public class SpawnSign : MonoBehaviour, IObjectSpawner
 
 
     //METHODS
-    public GameObject spawnObject(SpawnPosition spawnPosition, Vector3 position, Quaternion rotation)
+    private List<Texture> getTextureList(SpawnPosition spawnPosition)
     {
-        List<Texture> textureList;
-
         switch (spawnPosition)
         {
             case SpawnPosition.side:
-                textureList = sideTextures;
-                break;
+                return sideTextures;
             case SpawnPosition.top:
-                textureList = topTextures;
-                break;
+                return topTextures;
             case SpawnPosition.bottom:
-                textureList = bottomTextures;
-                break;
+                return bottomTextures;
             default:
-                textureList = sideTextures;
-                break;
+                return sideTextures;
         }
+    }
+
+
+    public bool getListEmpty(SpawnPosition spawnPosition)
+    {
+        List<Texture> textureList = getTextureList(spawnPosition);
+        return textureList.Count == 0;
+    }
+
+
+    public GameObject spawnObject(SpawnPosition spawnPosition, Vector3 position, Quaternion rotation)
+    {
+        List<Texture> textureList = getTextureList(spawnPosition);
 
         int textureIndex = Random.Range(0, textureList.Count);
         Texture texture = textureList[textureIndex];

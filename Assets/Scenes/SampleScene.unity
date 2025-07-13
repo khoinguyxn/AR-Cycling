@@ -602,38 +602,53 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sideModels:
-  - model: {fileID: 0}
+  - model: {fileID: 919132149155446097, guid: bcf55821dc6c03b4e898efa927902040, type: 3}
+    animatorController: {fileID: 9100000, guid: 33fbbe7b6fa704c4a9b05592bc93d210, type: 2}
+    eulerRotation: {x: 0, y: 0, z: 0}
+    localScale: {x: 1, y: 1, z: 1}
+    spinningPeriod: 0
+  - model: {fileID: 919132149155446097, guid: a3f6f4de1a612244b8c9ba46a006ea8d, type: 3}
     animatorController: {fileID: 0}
     eulerRotation: {x: 0, y: 0, z: 0}
-    localScale: {x: 0, y: 0, z: 0}
-    spinningPeriod: 0
-  - model: {fileID: 0}
+    localScale: {x: 30, y: 30, z: 30}
+    spinningPeriod: 5
+  - model: {fileID: 919132149155446097, guid: 69d2bac996c82a14b8314c529b08e1d7, type: 3}
     animatorController: {fileID: 0}
     eulerRotation: {x: 0, y: 0, z: 0}
-    localScale: {x: 0, y: 0, z: 0}
-    spinningPeriod: 0
-  - model: {fileID: 0}
-    animatorController: {fileID: 0}
-    eulerRotation: {x: 0, y: 0, z: 0}
-    localScale: {x: 0, y: 0, z: 0}
-    spinningPeriod: 0
+    localScale: {x: 50, y: 50, z: 50}
+    spinningPeriod: 5
   topModels:
-  - model: {fileID: 0}
+  - model: {fileID: 919132149155446097, guid: de6f1459429f0674b8c1a3cd097f0d99, type: 3}
     animatorController: {fileID: 0}
     eulerRotation: {x: 0, y: 0, z: 0}
-    localScale: {x: 0, y: 0, z: 0}
-    spinningPeriod: 0
-  - model: {fileID: 0}
+    localScale: {x: 50, y: 50, z: 50}
+    spinningPeriod: 5
+  - model: {fileID: 919132149155446097, guid: 119bdc96b91f8a74aa21effe6e389cfc, type: 3}
     animatorController: {fileID: 0}
     eulerRotation: {x: 0, y: 0, z: 0}
-    localScale: {x: 0, y: 0, z: 0}
+    localScale: {x: 50, y: 50, z: 50}
+    spinningPeriod: 5
+  - model: {fileID: 919132149155446097, guid: bcf55821dc6c03b4e898efa927902040, type: 3}
+    animatorController: {fileID: 9100000, guid: 33fbbe7b6fa704c4a9b05592bc93d210, type: 2}
+    eulerRotation: {x: 0, y: 0, z: 0}
+    localScale: {x: 1, y: 1, z: 1}
     spinningPeriod: 0
-  - model: {fileID: 0}
+  bottomModels:
+  - model: {fileID: 919132149155446097, guid: a3f6f4de1a612244b8c9ba46a006ea8d, type: 3}
     animatorController: {fileID: 0}
     eulerRotation: {x: 0, y: 0, z: 0}
-    localScale: {x: 0, y: 0, z: 0}
-    spinningPeriod: 0
-  bottomModels: []
+    localScale: {x: 30, y: 30, z: 30}
+    spinningPeriod: 5
+  - model: {fileID: 919132149155446097, guid: 69d2bac996c82a14b8314c529b08e1d7, type: 3}
+    animatorController: {fileID: 0}
+    eulerRotation: {x: 0, y: 0, z: 0}
+    localScale: {x: 50, y: 50, z: 50}
+    spinningPeriod: 5
+  - model: {fileID: 919132149155446097, guid: de6f1459429f0674b8c1a3cd097f0d99, type: 3}
+    animatorController: {fileID: 0}
+    eulerRotation: {x: 0, y: 0, z: 0}
+    localScale: {x: 50, y: 50, z: 50}
+    spinningPeriod: 5
 --- !u!114 &2112979533
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -649,17 +664,17 @@ MonoBehaviour:
   signObject: {fileID: 7004894785395504756, guid: 60426f2fe3aaebc498936f41f8ecf827, type: 3}
   signMaterial: {fileID: 2100000, guid: 814114abfa8d90548b4eab37b547e9ef, type: 2}
   sideTextures:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 2800000, guid: 8f0f366c357ffc046b5ef1a269975255, type: 3}
+  - {fileID: 2800000, guid: 19f84f913202cb04dba43332bd13c17e, type: 3}
+  - {fileID: 2800000, guid: b6682b70d4072fd4e8e4786e3e724972, type: 3}
   topTextures:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 2800000, guid: 7a4dd565ce5108042b80da1148ab486e, type: 3}
+  - {fileID: 2800000, guid: 9bb67aea3f041694fbe81eb95a6efcbc, type: 3}
+  - {fileID: 2800000, guid: 8f0f366c357ffc046b5ef1a269975255, type: 3}
   bottomTextures:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 2800000, guid: 19f84f913202cb04dba43332bd13c17e, type: 3}
+  - {fileID: 2800000, guid: b6682b70d4072fd4e8e4786e3e724972, type: 3}
+  - {fileID: 2800000, guid: 7a4dd565ce5108042b80da1148ab486e, type: 3}
 --- !u!114 &2112979534
 MonoBehaviour:
   m_ObjectHideFlags: 0
