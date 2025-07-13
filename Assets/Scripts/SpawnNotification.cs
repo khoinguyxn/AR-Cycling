@@ -132,6 +132,35 @@ public class SpawnNotification : MonoBehaviour
     }
 
 
+    private void spawnNotificationInstance(Vector3 instancePosition, Vector2 referenceVector)
+    {
+        Destroy(previousObject);
+        previousObject = currentObject;
+        initialiseSignDisplacement();
+
+        if (spawnSign.getListEmpty(spawnPosition))
+        {
+            currentObject = spawnModelInstance(instancePosition);
+        }
+        else if (spawnModel.getListEmpty(spawnPosition))
+        {
+            currentObject = spawnSignInstance(instancePosition, referenceVector);
+        }
+        else
+        {
+            if (Random.value < 0.5f)
+            {
+                currentObject = spawnSignInstance(instancePosition, referenceVector);
+            }
+            else
+            {
+
+                currentObject = spawnModelInstance(instancePosition);
+            }
+        }
+    }
+
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -141,8 +170,10 @@ public class SpawnNotification : MonoBehaviour
         spawnModel = notificationControl.GetComponent<SpawnModel>();
 
         initialiseSignDisplacement();
-        objectSpawnDisplacement = Vector3.right * objectPosition.getXDisplacement() + Vector3.forward * spawnDistance;
 
+        objectSpawnDisplacement = Vector3.right * objectPosition.getXDisplacement() + Vector3.forward * spawnDistance;
+        Vector2 referenceVector = unitVector2(getVector2(getMovementVector()));
+        spawnNotificationInstance(userCamera.transform.position + objectSpawnDisplacement, referenceVector);
     }
 
     // Update is called once per frame
@@ -151,34 +182,9 @@ public class SpawnNotification : MonoBehaviour
         if (getUserDistance() >= distanceUntilSpawnObject)
         {
             Vector2 referenceVector = unitVector2(getVector2(getMovementVector()));
-
             Vector3 relativeSpawnDisplacement = getRelativeSpawnDisplacement(referenceVector);
             Vector3 instancePosition = userCamera.transform.position + relativeSpawnDisplacement + Vector3.up * objectPosition.getYDisplacement();
-
-            Destroy(previousObject);
-            previousObject = currentObject;
-            initialiseSignDisplacement();
-
-            if (spawnSign.getListEmpty(spawnPosition))
-            {
-                currentObject = spawnModelInstance(instancePosition);
-            }
-            else if (spawnModel.getListEmpty(spawnPosition))
-            {
-                currentObject = spawnSignInstance(instancePosition, referenceVector);
-            }
-            else
-            {
-                if (Random.value < 0.5f)
-                {
-                    currentObject = spawnSignInstance(instancePosition, referenceVector);
-                }
-                else
-                {
-
-                    currentObject = spawnModelInstance(instancePosition);
-                }
-            }
+            spawnNotificationInstance(instancePosition, referenceVector);
         }
 
         Vector3 userPosition = userCamera.transform.position;
