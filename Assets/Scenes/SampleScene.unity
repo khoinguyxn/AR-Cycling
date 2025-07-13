@@ -414,6 +414,55 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 2351505566771328562, guid: acbf65a81ce2cf94f82a0809298acf70, type: 3}
   m_PrefabInstance: {fileID: 1401900441}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1173112630
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1173112632}
+  - component: {fileID: 1173112631}
+  m_Layer: 0
+  m_Name: VelocityTracker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1173112631
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1173112630}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd4d3f53688119343bf7fc145b224c9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  headTransform: {fileID: 1324633331}
+  smoothingFactor: 0.1
+  maxVelocityChange: 10
+  exportFileName: velocity_data
+  exportInterval: 1
+--- !u!4 &1173112632
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1173112630}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.9039984, y: 4.1611223, z: 12.833595}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1173149483
 GameObject:
   m_ObjectHideFlags: 0
@@ -464,6 +513,7 @@ MonoBehaviour:
   gazeControl: {fileID: 654480810}
   dialogPool: {fileID: 1173149484}
   menuDialog: {fileID: 290411856905126350, guid: a4a53f88809976447b0ae78544494c5d, type: 3}
+  velocityTracker: {fileID: 1173112631}
 --- !u!4 &1173149486
 Transform:
   m_ObjectHideFlags: 0
@@ -544,6 +594,11 @@ MonoBehaviour:
 --- !u!20 &1324633326 stripped
 Camera:
   m_CorrespondingSourceObject: {fileID: 2351505566771328527, guid: acbf65a81ce2cf94f82a0809298acf70, type: 3}
+  m_PrefabInstance: {fileID: 1401900441}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1324633331 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2351505566771328526, guid: acbf65a81ce2cf94f82a0809298acf70, type: 3}
   m_PrefabInstance: {fileID: 1401900441}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1401900441
@@ -695,3 +750,4 @@ SceneRoots:
   - {fileID: 40833772}
   - {fileID: 654480811}
   - {fileID: 1173149486}
+  - {fileID: 1173112632}

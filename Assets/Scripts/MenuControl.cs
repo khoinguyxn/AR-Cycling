@@ -9,6 +9,7 @@ public class MenuControl : MonoBehaviour
     [SerializeField] private GameObject gazeControl;
     public DialogPool dialogPool;
     [SerializeField] private GameObject menuDialog;
+    [SerializeField] private VelocityTracker velocityTracker;
 
     private void Start()
     {
@@ -34,6 +35,7 @@ public class MenuControl : MonoBehaviour
                                         Debug.Log("Starting experiment!");
                                         SelectARandomNotification();
                                         StartEyeTracking();
+                                        velocityTracker.StartTracking();
                                     })
               .SetNegative("Quit", _ =>
                                    {
