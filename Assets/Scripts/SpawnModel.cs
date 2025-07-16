@@ -77,7 +77,7 @@ public class SpawnModel : MonoBehaviour, IObjectSpawner
     }
 
 
-    public GameObject spawnObject(SpawnPosition spawnPosition, Vector3 position, Quaternion rotation)
+    public GameObject spawnObject(SpawnPosition spawnPosition, Vector3 position, Quaternion rotation, Vector3 localScale)
     {
         List<Model> modelList = getModelList(spawnPosition);
 
@@ -86,6 +86,7 @@ public class SpawnModel : MonoBehaviour, IObjectSpawner
         modelList.RemoveAt(modelIndex);
 
         GameObject modelObject = Instantiate(model.model, position, rotation);
+        modelObject.transform.localScale = localScale;
         addStatefulInteractable(modelObject);
         addCollider(modelObject);
         addAnimation(modelObject, model);

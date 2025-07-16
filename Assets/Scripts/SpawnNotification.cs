@@ -22,9 +22,9 @@ public class SpawnNotification : MonoBehaviour
     private SpawnModel spawnModel;
     private readonly Dictionary<SpawnPosition, ObjectPosition> objectPositionMap = new Dictionary<SpawnPosition, ObjectPosition>
     {
-        { SpawnPosition.side, new ObjectPosition(new Vector2(-3, 0), new Vector3(0, 0, 0)) },
-        { SpawnPosition.top, new ObjectPosition(new Vector2(0, 6), new Vector3(0, 0, 0)) },
-        { SpawnPosition.bottom, new ObjectPosition(new Vector2(0, -1.5f), new Vector3(90, 0, 0)) },
+        { SpawnPosition.side, new ObjectPosition(new Vector2(-3, 0), new Vector3(0, 0, 0), new Vector3(1, 1, 1)) },
+        { SpawnPosition.top, new ObjectPosition(new Vector2(0, 6), new Vector3(0, 0, 0), new Vector3(1, 1, 1)) },
+        { SpawnPosition.bottom, new ObjectPosition(new Vector2(0, -1.5f), new Vector3(90, 0, 0), new Vector3(2, 2, 1)) },
     };
 
 
@@ -121,14 +121,14 @@ public class SpawnNotification : MonoBehaviour
     private GameObject spawnSignInstance(Vector3 instancePosition, Vector2 referenceVector)
     {
         Quaternion instanceRotation = Quaternion.Euler(objectPosition.getXRotation(), getFacingAngle(referenceVector) + objectPosition.getYRotation(), objectPosition.getZRotation());
-        return spawnSign.spawnObject(spawnPosition, instancePosition, instanceRotation);
+        return spawnSign.spawnObject(spawnPosition, instancePosition, instanceRotation, objectPosition.getLocalScale());
     }
 
 
     private GameObject spawnModelInstance(Vector3 instancePosition)
     {
         Quaternion instanceRotation = Quaternion.Euler(0, 0, objectPosition.getZRotation());
-        return spawnModel.spawnObject(spawnPosition, instancePosition, instanceRotation);
+        return spawnModel.spawnObject(spawnPosition, instancePosition, instanceRotation, new Vector3(1, 1, 1));
     }
 
 

@@ -37,7 +37,7 @@ public class SpawnSign : MonoBehaviour, IObjectSpawner
     }
 
 
-    public GameObject spawnObject(SpawnPosition spawnPosition, Vector3 position, Quaternion rotation)
+    public GameObject spawnObject(SpawnPosition spawnPosition, Vector3 position, Quaternion rotation, Vector3 localScale)
     {
         List<Texture> textureList = getTextureList(spawnPosition);
 
@@ -46,6 +46,7 @@ public class SpawnSign : MonoBehaviour, IObjectSpawner
         textureList.RemoveAt(textureIndex);
 
         GameObject signInstance = Instantiate(signObject, position, rotation);
+        signInstance.transform.localScale = localScale;
 
         signMaterial.mainTexture = texture;
 

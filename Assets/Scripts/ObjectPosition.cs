@@ -5,14 +5,16 @@ public class ObjectPosition
     //ATTRIBUTES
     private Vector2 displacement;
     private Vector3 eulerRotation;
+    private Vector3 localScale;
 
 
 
     //METHODS
-    public ObjectPosition(Vector2 _displacement, Vector3 _eulerRotation)
+    public ObjectPosition(Vector2 _displacement, Vector3 _eulerRotation, Vector3 _localScale)
     {
         displacement = _displacement;
         eulerRotation = _eulerRotation;
+        localScale = _localScale;
     }
 
 
@@ -43,5 +45,11 @@ public class ObjectPosition
     public float getZRotation()
     {
         return eulerRotation.z;
+    }
+
+
+    public Vector3 getLocalScale()
+    {
+        return localScale;
     }
 }
