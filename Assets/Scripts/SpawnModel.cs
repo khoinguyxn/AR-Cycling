@@ -1,16 +1,40 @@
+using System.Collections.Generic;
 using MixedReality.Toolkit;
-using UnityEditor;
 using UnityEngine;
 
-public class SpawnModel : SpawnObject
+public class SpawnModel : MonoBehaviour, IObjectSpawner
 {
     //ATTRIBUTES
-    public ModelList[] models;
-    public int modelListIndex;
+    public List<Model> sideModels;
+    public List<Model> topModels;
+    public List<Model> bottomModels;
 
 
 
     //METHODS
+    private List<Model> getModelList(SpawnPosition spawnPosition)
+    {
+        switch (spawnPosition)
+        {
+            case SpawnPosition.side:
+                return sideModels;
+            case SpawnPosition.top:
+                return topModels;
+            case SpawnPosition.bottom:
+                return bottomModels;
+            default:
+                return sideModels;
+        }
+    }
+
+
+    public bool getListEmpty(SpawnPosition spawnPosition)
+    {
+        List<Model> modelList = getModelList(spawnPosition);
+        return modelList.Count == 0;
+    }
+
+
     private void addStatefulInteractable(GameObject modelObject)
     {
         StatefulInteractable statefulInteractable = modelObject.AddComponent<StatefulInteractable>();
@@ -53,14 +77,16 @@ public class SpawnModel : SpawnObject
     }
 
 
-    protected override GameObject spawnObject(Vector3 position, Quaternion rotation)
+    public GameObject spawnObject(SpawnPosition spawnPosition, Vector3 position, Quaternion rotation, Vector3 localScale)
     {
-        ModelList modelList = models[modelListIndex];
-        int modelIndex = Random.Range(0, modelList.getLength());
-        Model model = modelList.getModel(modelIndex);
-        modelList.popModel(modelIndex);
+        List<Model> modelList = getModelList(spawnPosition);
+
+        int modelIndex = Random.Range(0, modelList.Count);
+        Model model = modelList[modelIndex];
+        modelList.RemoveAt(modelIndex);
 
         GameObject modelObject = Instantiate(model.model, position, rotation);
+        modelObject.transform.localScale = localScale;
         addStatefulInteractable(modelObject);
         addCollider(modelObject);
         addAnimation(modelObject, model);

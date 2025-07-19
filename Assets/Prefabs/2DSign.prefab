@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6872027350335680012}
   - component: {fileID: 6742256149571740620}
   m_Layer: 0
-  m_Name: SideSignQuad
+  m_Name: 2DSign
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
