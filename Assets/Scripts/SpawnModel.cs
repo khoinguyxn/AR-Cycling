@@ -35,15 +35,6 @@ public class SpawnModel : MonoBehaviour, IObjectSpawner
     }
 
 
-    private void addStatefulInteractable(GameObject modelObject)
-    {
-        StatefulInteractable statefulInteractable = modelObject.AddComponent<StatefulInteractable>();
-        GazeControl gazeControl = modelObject.AddComponent<GazeControl>();
-        statefulInteractable.IsGazeHovered.OnEntered.AddListener(_ => gazeControl.startGaze());
-        statefulInteractable.IsGazeHovered.OnExited.AddListener(_ => gazeControl.endGaze());
-    }
-
-
     private void addCollider(GameObject modelObject)
     {
         if (modelObject.GetComponent<Collider>() == null)
@@ -87,7 +78,7 @@ public class SpawnModel : MonoBehaviour, IObjectSpawner
 
         GameObject modelObject = Instantiate(model.model, position, rotation);
         modelObject.transform.localScale = localScale;
-        addStatefulInteractable(modelObject);
+        modelObject.AddComponent<StatefulInteractable>();
         addCollider(modelObject);
         addAnimation(modelObject, model);
 
