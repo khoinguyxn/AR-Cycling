@@ -1,0 +1,47 @@
+using UnityEngine;
+
+
+[System.Serializable]
+public abstract class Notification : Object
+{
+    //ATTRIBUTES
+    public Vector3 position;
+    public Vector3 eulerRotation;
+    public Vector3 localScale;
+
+
+
+    //METHODS
+    public Vector3 getPosition()
+    {
+        return position;
+    }
+
+
+    public Vector3 getEulerRotation()
+    {
+        return eulerRotation;
+    }
+
+
+    public Quaternion getRotation()
+    {
+        return Quaternion.Euler(eulerRotation.x, eulerRotation.y, eulerRotation.z);
+    }
+
+
+    public Vector3 getScale()
+    {
+        return localScale;
+    }
+
+
+    public bool checkSpawn(Vector3 userPosition, float spawnDistance)
+    {
+        Vector3 displacementVector = position - userPosition;
+        return displacementVector.magnitude <= spawnDistance;
+    }
+
+
+    public abstract GameObject spawnObject();
+}

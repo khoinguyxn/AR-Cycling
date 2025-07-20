@@ -2,12 +2,19 @@ using UnityEngine;
 
 
 [System.Serializable]
-public class Model
+public class Model : Notification
 {
     //ATTRIBUTES
     public GameObject model;
     public RuntimeAnimatorController animatorController;
-    public Vector3 eulerRotation;
-    public Vector3 localScale;
     public float spinningPeriod = 300;
+
+
+
+    //METHODS
+    public override GameObject spawnObject()
+    {
+        GameObject modelObject = Instantiate(model, position, getRotation());
+        return modelObject;
+    }
 }
