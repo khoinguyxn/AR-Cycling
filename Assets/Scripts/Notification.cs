@@ -38,7 +38,7 @@ public abstract class Notification : Object
 
     public bool checkSpawn(Vector3 userPosition, float spawnDistance)
     {
-        Vector3 displacementVector = position - userPosition;
+        Vector3 displacementVector = new Vector3(position.x - userPosition.x, 0, position.z - userPosition.z);
         return displacementVector.magnitude <= spawnDistance;
     }
 

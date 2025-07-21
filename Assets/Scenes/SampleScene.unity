@@ -268,6 +268,11 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 2351505566771328562, guid: acbf65a81ce2cf94f82a0809298acf70, type: 3}
   m_PrefabInstance: {fileID: 1401900441}
   m_PrefabAsset: {fileID: 0}
+--- !u!20 &777067287 stripped
+Camera:
+  m_CorrespondingSourceObject: {fileID: 2351505566771328527, guid: acbf65a81ce2cf94f82a0809298acf70, type: 3}
+  m_PrefabInstance: {fileID: 1401900441}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1163151096
 GameObject:
   m_ObjectHideFlags: 0
@@ -277,9 +282,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1163151100}
-  - component: {fileID: 1163151099}
-  - component: {fileID: 1163151098}
-  - component: {fileID: 1163151097}
+  - component: {fileID: 1163151101}
   m_Layer: 0
   m_Name: NotificationControl
   m_TagString: Untagged
@@ -287,56 +290,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1163151097
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1163151096}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 29eb0aba441037248b7d69e634745a54, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sideModels: []
-  topModels: []
-  bottomModels: []
---- !u!114 &1163151098
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1163151096}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b2f96189582dd2a40b3766aa683d357b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  signObject: {fileID: 7004894785395504756, guid: 60426f2fe3aaebc498936f41f8ecf827, type: 3}
-  signMaterial: {fileID: 2100000, guid: 814114abfa8d90548b4eab37b547e9ef, type: 2}
-  sideTextures: []
-  topTextures: []
-  bottomTextures: []
---- !u!114 &1163151099
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1163151096}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 60ea623e23ebec54a8357002ec8c2ebc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  spawnPosition: 0
-  spawnDistance: 20
-  notificationControl: {fileID: 1163151096}
-  userCamera: {fileID: 1324633326}
-  distanceBetweenObjectsBase: 40
-  distanceBetweenObjectsOffset: 10
 --- !u!4 &1163151100
 Transform:
   m_ObjectHideFlags: 0
@@ -352,6 +305,24 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1163151101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1163151096}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60ea623e23ebec54a8357002ec8c2ebc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  notifications: []
+  spawnDistance: 20
+  notificationControl: {fileID: 1163151096}
+  userCamera: {fileID: 777067287}
+  signObject: {fileID: 7004894785395504756, guid: 60426f2fe3aaebc498936f41f8ecf827, type: 3}
+  signMaterial: {fileID: 2100000, guid: 814114abfa8d90548b4eab37b547e9ef, type: 2}
 --- !u!1 &1173149483
 GameObject:
   m_ObjectHideFlags: 0
@@ -417,11 +388,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!20 &1324633326 stripped
-Camera:
-  m_CorrespondingSourceObject: {fileID: 2351505566771328527, guid: acbf65a81ce2cf94f82a0809298acf70, type: 3}
-  m_PrefabInstance: {fileID: 1401900441}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1401900441
 PrefabInstance:
   m_ObjectHideFlags: 0

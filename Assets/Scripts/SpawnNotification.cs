@@ -9,6 +9,8 @@ public class SpawnNotification : MonoBehaviour
     public float spawnDistance = 20;
     public GameObject notificationControl;
     public Camera userCamera;
+    public GameObject signObject;
+    public Material signMaterial;
     // public float distanceBetweenObjectsBase = 40;
     // public float distanceBetweenObjectsOffset = 10;
     // private ObjectPosition objectPosition;
@@ -31,6 +33,21 @@ public class SpawnNotification : MonoBehaviour
 
 
     //METHODS
+    public Sprite createSprite(Vector3 position, Vector3 eulerRotation, Vector3 localScale, string textureLocation)
+    {
+        Texture texture = Resources.Load<Texture>(textureLocation);
+        return new Sprite(position, eulerRotation, localScale, texture, signObject, signMaterial);
+    }
+
+
+    public Model createModel(Vector3 position, Vector3 eulerRotation, Vector3 localScale, string modelLocation, float spinningPeriod, string animatorLocation = null)
+    {
+        GameObject model = Resources.Load<GameObject>(modelLocation);
+        RuntimeAnimatorController animator = Resources.Load<RuntimeAnimatorController>(animatorLocation);
+        return new Model(position, eulerRotation, localScale, model, spinningPeriod, animator);
+    }
+
+
     // private float dotProduct2(Vector2 a, Vector2 b)
     // {
     //     return a.x * b.x + a.y * b.y;
@@ -166,6 +183,12 @@ public class SpawnNotification : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        notifications = new List<Notification>
+        {
+            createSprite(new Vector3(-2, 1.5f, 30), new Vector3(0, 0, 0), new Vector3(1, 1, 1), "SignImages/40_zone"),
+            createModel(new Vector3(0, 6, 70), new Vector3(0, 0, 0), new Vector3(50, 50, 50), "Models/Cafe/Cafe", 5),
+        };
+
         notifications.Reverse(); //Reverse notification list items so that items are popped from the end (O(1) time as opposed to O(n)).
 
         // objectPosition = objectPositionMap[spawnPosition];
@@ -198,13 +221,11 @@ public class SpawnNotification : MonoBehaviour
 
         if (notifications.Count > 0)
         {
-            //Equivalent to notification = notifications.pop();
             Notification notification = notifications[notifications.Count - 1];
-            notifications.RemoveAt(notifications.Count - 1);
-
             if (notification.checkSpawn(userCamera.transform.position, spawnDistance))
             {
                 spawnNotificationInstance(notification);
+                notifications.RemoveAt(notifications.Count - 1);
             }
         }
     }

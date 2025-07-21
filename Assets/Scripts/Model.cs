@@ -2,17 +2,27 @@ using UnityEngine;
 using MixedReality.Toolkit;
 
 
-[System.Serializable]
 public class Model : Notification
 {
     //ATTRIBUTES
     public GameObject model;
-    public RuntimeAnimatorController animatorController;
     public float spinningPeriod = 300;
+    public RuntimeAnimatorController animatorController;
 
 
 
     //METHODS
+    public Model(Vector3 _position, Vector3 _eulerRotation, Vector3 _localScale, GameObject _model, float _spinningPeriod, RuntimeAnimatorController _animatorController)
+    {
+        position = _position;
+        eulerRotation = _eulerRotation;
+        localScale = _localScale;
+        model = _model;
+        spinningPeriod = _spinningPeriod;
+        animatorController = _animatorController;
+    }
+
+
     private void addStatefulInteractable(GameObject modelObject)
     {
         if (modelObject.GetComponent<StatefulInteractable>() == null)
