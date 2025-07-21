@@ -5,7 +5,9 @@ public class SpawnNotification : MonoBehaviour
 {
     //ATTRIBUTES
     // public SpawnPosition spawnPosition;
-    public List<Notification> notifications;
+    public List<List<Notification>> notificationLists;
+    private List<Notification> notifications;
+    public int notificationListIndex = 0;
     public float spawnDistance = 20;
     public GameObject notificationControl;
     public Camera userCamera;
@@ -183,12 +185,16 @@ public class SpawnNotification : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        notifications = new List<Notification>
+        notificationLists = new List<List<Notification>>
         {
-            createSprite(new Vector3(-2, 1.5f, 30), new Vector3(0, 0, 0), new Vector3(1, 1, 1), "SignImages/40_zone"),
-            createModel(new Vector3(0, 6, 70), new Vector3(0, 0, 0), new Vector3(50, 50, 50), "Models/Cafe/Cafe", 5),
+            new List<Notification>
+            {
+                createSprite(new Vector3(-2, 1.5f, 30), new Vector3(0, 0, 0), new Vector3(1, 1, 1), "SignImages/40_zone"),
+                createModel(new Vector3(0, 6, 70), new Vector3(0, 0, 0), new Vector3(50, 50, 50), "Models/Cafe/Cafe", 5),
+            }
         };
 
+        notifications = notificationLists[notificationListIndex];
         notifications.Reverse(); //Reverse notification list items so that items are popped from the end (O(1) time as opposed to O(n)).
 
         // objectPosition = objectPositionMap[spawnPosition];
