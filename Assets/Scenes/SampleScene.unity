@@ -317,7 +317,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60ea623e23ebec54a8357002ec8c2ebc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  notifications: []
+  notificationListIndex: 0
   spawnDistance: 20
   notificationControl: {fileID: 1163151096}
   userCamera: {fileID: 777067287}
