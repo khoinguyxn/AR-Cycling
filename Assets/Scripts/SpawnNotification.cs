@@ -12,20 +12,21 @@ public class SpawnNotification : MonoBehaviour
     public Camera userCamera;
     public GameObject signObject;
     public Material signMaterial;
+    public AudioSource audioSource;
     private GameObject currentObject;
     private GameObject previousObject;
 
 
 
     //METHODS
-    public Sprite createSprite(Vector3 position, Vector3 eulerRotation, Vector3 localScale, string textureLocation)
+    public Sprite CreateSprite(Vector3 position, Vector3 eulerRotation, Vector3 localScale, string textureLocation)
     {
         Texture texture = Resources.Load<Texture>(textureLocation);
         return new Sprite(position, eulerRotation, localScale, texture, signObject, signMaterial);
     }
 
 
-    public Model createModel(Vector3 position, Vector3 eulerRotation, Vector3 localScale, string modelLocation, float spinningPeriod, string animatorLocation = null)
+    public Model CreateModel(Vector3 position, Vector3 eulerRotation, Vector3 localScale, string modelLocation, float spinningPeriod, string animatorLocation = null)
     {
         GameObject model = Resources.Load<GameObject>(modelLocation);
         RuntimeAnimatorController animator = Resources.Load<RuntimeAnimatorController>(animatorLocation);
@@ -33,11 +34,12 @@ public class SpawnNotification : MonoBehaviour
     }
 
 
-    private void spawnNotificationInstance(Notification notification)
+    private void SpawnNotificationInstance(Notification notification)
     {
         Destroy(previousObject);
         previousObject = currentObject;
-        currentObject = notification.spawnObject();
+        currentObject = notification.SpawnObject();
+        audioSource.Play();
     }
 
 
@@ -48,8 +50,8 @@ public class SpawnNotification : MonoBehaviour
         {
             new List<Notification>
             {
-                createSprite(new Vector3(-2, 1.5f, 30), new Vector3(0, 0, 0), new Vector3(1, 1, 1), "SignImages/40_zone"),
-                createModel(new Vector3(0, 6, 70), new Vector3(0, 0, 0), new Vector3(50, 50, 50), "Models/Cafe/Cafe", 5),
+                CreateSprite(new Vector3(-2, 1.5f, 30), new Vector3(0, 0, 0), new Vector3(1, 1, 1), "SignImages/40_zone"),
+                CreateModel(new Vector3(0, 6, 70), new Vector3(0, 0, 0), new Vector3(50, 50, 50), "Models/Cafe/Cafe", 5),
             }
         };
 
@@ -63,9 +65,9 @@ public class SpawnNotification : MonoBehaviour
         if (notifications.Count > 0)
         {
             Notification notification = notifications[notifications.Count - 1];
-            if (notification.checkSpawn(userCamera.transform.position, spawnDistance))
+            if (notification.CheckSpawn(userCamera.transform.position, spawnDistance))
             {
-                spawnNotificationInstance(notification);
+                SpawnNotificationInstance(notification);
                 notifications.RemoveAt(notifications.Count - 1);
             }
         }

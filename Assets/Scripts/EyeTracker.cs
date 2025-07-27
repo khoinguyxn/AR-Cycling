@@ -19,7 +19,7 @@ public class EyeTracker : MonoBehaviour
 
 
     //METHODS
-    private GameObject getGazingObject(RaycastHit hit)
+    private GameObject GetGazingObject(RaycastHit hit)
     {
         Transform currentObject = hit.collider.gameObject.transform;
         while (currentObject.parent != null)
@@ -62,7 +62,7 @@ public class EyeTracker : MonoBehaviour
             gazePointer.transform.position = hit.point;
 
             //Get what the user is currently gazing at this frame
-            GameObject gazingObject = getGazingObject(hit);
+            GameObject gazingObject = GetGazingObject(hit);
 
             //If still gazing at the same object, increment timer
             if (gazingObject == currentGazingObject)

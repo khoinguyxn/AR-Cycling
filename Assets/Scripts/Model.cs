@@ -23,7 +23,7 @@ public class Model : Notification
     }
 
 
-    private void addStatefulInteractable(GameObject modelObject)
+    private void AddStatefulInteractable(GameObject modelObject)
     {
         if (modelObject.GetComponent<StatefulInteractable>() == null)
         {
@@ -32,7 +32,7 @@ public class Model : Notification
     }
 
     
-    private void addCollider(GameObject modelObject)
+    private void AddCollider(GameObject modelObject)
     {
         if (modelObject.GetComponent<Collider>() == null)
         {
@@ -41,7 +41,7 @@ public class Model : Notification
     }
 
 
-    private void addAnimation(GameObject modelObject)
+    private void AddAnimation(GameObject modelObject)
     {
         Animator animator = modelObject.GetComponent<Animator>();
         if (animator == null)
@@ -58,19 +58,19 @@ public class Model : Notification
                 spinningAnimation = modelObject.AddComponent<SpinningAnimation>();
             }
             spinningAnimation.model = modelObject;
-            spinningAnimation.setActive(true);
-            spinningAnimation.setDuration(spinningPeriod);
+            spinningAnimation.SetActive(true);
+            spinningAnimation.SetDuration(spinningPeriod);
         }
     }
 
 
-    public override GameObject spawnObject()
+    public override GameObject SpawnObject()
     {
-        GameObject modelObject = Instantiate(model, position, getRotation());
+        GameObject modelObject = Instantiate(model, position, GetRotation());
         modelObject.transform.localScale = localScale;
-        addStatefulInteractable(modelObject);
-        addCollider(modelObject);
-        addAnimation(modelObject);
+        AddStatefulInteractable(modelObject);
+        AddCollider(modelObject);
+        AddAnimation(modelObject);
         return modelObject;
     }
 }

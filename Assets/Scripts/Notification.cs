@@ -12,36 +12,36 @@ public abstract class Notification : Object
 
 
     //METHODS
-    public Vector3 getPosition()
+    public Vector3 GetPosition()
     {
         return position;
     }
 
 
-    public Vector3 getEulerRotation()
+    public Vector3 GetEulerRotation()
     {
         return eulerRotation;
     }
 
 
-    public Quaternion getRotation()
+    public Quaternion GetRotation()
     {
         return Quaternion.Euler(eulerRotation.x, eulerRotation.y, eulerRotation.z);
     }
 
 
-    public Vector3 getScale()
+    public Vector3 GetScale()
     {
         return localScale;
     }
 
 
-    public bool checkSpawn(Vector3 userPosition, float spawnDistance)
+    public bool CheckSpawn(Vector3 userPosition, float spawnDistance)
     {
         Vector3 displacementVector = new Vector3(position.x - userPosition.x, 0, position.z - userPosition.z);
         return displacementVector.magnitude <= spawnDistance;
     }
 
 
-    public abstract GameObject spawnObject();
+    public abstract GameObject SpawnObject();
 }

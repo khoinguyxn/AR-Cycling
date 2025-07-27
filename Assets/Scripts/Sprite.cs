@@ -22,9 +22,9 @@ public class Sprite : Notification
     }
 
 
-    public override GameObject spawnObject()
+    public override GameObject SpawnObject()
     {
-        GameObject spriteObject = Instantiate(signObject, position, getRotation());
+        GameObject spriteObject = Instantiate(signObject, position, GetRotation());
         spriteObject.transform.localScale = localScale;
         signMaterial.mainTexture = texture;
 
