@@ -47,11 +47,12 @@ public class SpawnModel : MonoBehaviour, IObjectSpawner
     private void addAnimation(GameObject modelObject, Model model)
     {
         RuntimeAnimatorController animatorController = model.animatorController;
-        Animator animator = modelObject.GetComponent<Animator>();
+        Animator                  animator           = modelObject.GetComponent<Animator>();
         if (animator == null)
         {
             animator = modelObject.AddComponent<Animator>();
         }
+
         animator.runtimeAnimatorController = animatorController;
 
         if (animatorController == null)
@@ -61,6 +62,7 @@ public class SpawnModel : MonoBehaviour, IObjectSpawner
             {
                 spinningAnimation = modelObject.AddComponent<SpinningAnimation>();
             }
+
             spinningAnimation.model = modelObject;
             spinningAnimation.setActive(true);
             spinningAnimation.setDuration(model.spinningPeriod);
