@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 public class SpawnNotification : MonoBehaviour
 {
@@ -15,6 +16,13 @@ public class SpawnNotification : MonoBehaviour
     public AudioSource audioSource;
     private GameObject currentObject;
     private GameObject previousObject;
+    private CsvExporter _gameObjectSpawnTimeExporter;
+
+    [Header("Export Settings")]
+    [SerializeField]
+    private string exportFileName = "notification-spawn-time";
+
+    [SerializeField] private float exportInterval = 1f;
 
 
 
@@ -40,6 +48,12 @@ public class SpawnNotification : MonoBehaviour
         previousObject = currentObject;
         currentObject = notification.SpawnObject();
         audioSource.Play();
+
+        _gameObjectSpawnTimeExporter.AddData(new GameObjectSpawnTimeDatum
+        {
+            TimeStamp = Time.time,
+            Object = currentObject.name
+        }.ToString());
     }
 
 
@@ -71,5 +85,38 @@ public class SpawnNotification : MonoBehaviour
                 notifications.RemoveAt(notifications.Count - 1);
             }
         }
+
+        _gameObjectSpawnTimeExporter.ExportRecentData();
+    }
+
+
+    private void Awake()
+    {
+        var timeStamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+        var gameObjectSpawnTimeFilePath = Application.persistentDataPath + $"/{exportFileName}_{timeStamp}.csv";
+        const string csvHeader = "Time (s),Object";
+        _gameObjectSpawnTimeExporter = new CsvExporter(gameObjectSpawnTimeFilePath, exportInterval, csvHeader);
+
+        Debug.Log($"Exporting notification spawned time to {gameObjectSpawnTimeFilePath}");
+    }
+    
+
+    private void OnDestroy()
+    {
+        if (_gameObjectSpawnTimeExporter.BufferCount == 0) return;
+
+        _gameObjectSpawnTimeExporter.ForceFlush();
+    }
+}
+
+
+internal record GameObjectSpawnTimeDatum
+{
+    public float TimeStamp { get; set; }
+    public string Object { get; set; }
+
+    public override string ToString()
+    {
+        return $"{TimeStamp},{Object}";
     }
 }
