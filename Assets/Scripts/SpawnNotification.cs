@@ -17,6 +17,7 @@ public class SpawnNotification : MonoBehaviour
     private GameObject currentObject;
     private GameObject previousObject;
     private CsvExporter _gameObjectSpawnTimeExporter;
+    public float LastAudioSorurcePlayedTime { get; private set; }
 
     [Header("Export Settings")]
     [SerializeField]
@@ -47,7 +48,9 @@ public class SpawnNotification : MonoBehaviour
         Destroy(previousObject);
         previousObject = currentObject;
         currentObject = notification.SpawnObject();
+
         audioSource.Play();
+        LastAudioSorurcePlayedTime = Time.time;
 
         _gameObjectSpawnTimeExporter.AddData(new GameObjectSpawnTimeDatum
         {
@@ -99,7 +102,7 @@ public class SpawnNotification : MonoBehaviour
 
         Debug.Log($"Exporting notification spawned time to {gameObjectSpawnTimeFilePath}");
     }
-    
+
 
     private void OnDestroy()
     {

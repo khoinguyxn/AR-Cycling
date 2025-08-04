@@ -469,10 +469,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2f764c1f169293439d82f9259989c41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  notificationControl: {fileID: 1163151096}
-  gazeControl: {fileID: 654480810}
   dialogPool: {fileID: 1173149484}
-  menuDialog: {fileID: 290411856905126350, guid: a4a53f88809976447b0ae78544494c5d, type: 3}
 --- !u!4 &1173149486
 Transform:
   m_ObjectHideFlags: 0
@@ -480,6 +477,51 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1173149483}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1211945791
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1211945793}
+  - component: {fileID: 1211945792}
+  m_Layer: 0
+  m_Name: ReactionTimeTracker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &1211945792
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1211945791}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccd3671284b84ff6adb9d723e233b8d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawnNotification: {fileID: 1163151101}
+--- !u!4 &1211945793
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1211945791}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -635,3 +677,4 @@ SceneRoots:
   - {fileID: 654480811}
   - {fileID: 1173149486}
   - {fileID: 1163151100}
+  - {fileID: 1211945793}
