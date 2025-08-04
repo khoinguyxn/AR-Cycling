@@ -34,6 +34,7 @@ class ReactionTimeTracker : MonoBehaviour
     switch (message)
     {
       case "READY":
+        // Instead of loogging, we could play a beep
         Debug.Log("Arduino is ready.");
         break;
       case "BUTTON_PRESSED":
