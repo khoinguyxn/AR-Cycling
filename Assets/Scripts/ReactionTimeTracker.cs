@@ -1,66 +1,89 @@
+using System;
 using UnityEngine;
 
-class ReactionTimeTracker : MonoBehaviour
+public class ReactionTimeTracker : MonoBehaviour
 {
-  [SerializeField] private SpawnNotification spawnNotification;
-  private CsvExporter _reactionTimeExporter;
-  private string inputBuffer = "";
+    [SerializeField] private SpawnNotification spawnNotification;
 
-  private void Update()
-  {
-    foreach (char c in Input.inputString)
+    [Header("Export Settings")] [SerializeField]
+    private string exportFileName = "reaction-time";
+
+    [SerializeField] private float exportInterval = 1f;
+    private CsvExporter _reactionTimeExporter;
+
+    private string _inputBuffer = "";
+
+    private void Awake()
     {
-      if (c == '\n' || c == '\r')
-      {
-        // End of line - process the complete message
-        ProcessArduinoMessage(inputBuffer.Trim());
-        inputBuffer = "";
-      }
-      else if (c == '\b')
-      {
-        // Backspace
-        if (inputBuffer.Length > 0)
-          inputBuffer = inputBuffer.Substring(0, inputBuffer.Length - 1);
-      }
-      else if (c >= ' ') // Only printable characters
-      {
-        inputBuffer += c;
-      }
+        var          timeStamp            = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+        var          reactionTimeFilePath = Application.persistentDataPath + $"/{exportFileName}_{timeStamp}.csv";
+        const string csvHeader            = "AudioPlayedTime (s),ReactionTime (s)";
+
+        _reactionTimeExporter = new CsvExporter(reactionTimeFilePath, exportInterval, csvHeader);
+
+        Debug.Log($"Exporting reaction time data to {reactionTimeFilePath}");
     }
-  }
 
-  private void ProcessArduinoMessage(string message)
-  {
-    switch (message)
+    private void Update()
     {
-      case "READY":
-        // Instead of loogging, we could play a beep
-        Debug.Log("Arduino is ready.");
-        break;
-      case "BUTTON_PRESSED":
-        HandleButtonPress();
-        break;
-      default:
-        Debug.Log($"Unknown message from Arduino: {message}");
-        break;
+        foreach (var c in Input.inputString)
+        {
+            switch (c)
+            {
+                case '\n' or '\r':
+                    // End of line - process the complete message
+                    ProcessArduinoMessage(_inputBuffer.Trim());
+                    _inputBuffer = "";
+                    break;
+                case '\b':
+                {
+                    // Backspace
+                    if (_inputBuffer.Length > 0)
+                        _inputBuffer = _inputBuffer.Substring(0, _inputBuffer.Length - 1);
+                    break;
+                }
+                // Only printable characters
+                case >= ' ':
+                    _inputBuffer += c;
+                    break;
+            }
+        }
+
+        _reactionTimeExporter.ExportRecentData();
     }
-  }
 
-  private void HandleButtonPress()
-  {
-    var now = Time.time;
-    var reactionTime = now - spawnNotification.LastAudioSorurcePlayedTime;
-
-    _reactionTimeExporter.AddData(new ReactionTimeDatum
+    private void ProcessArduinoMessage(string message)
     {
-      AudioPlayedTime = spawnNotification.LastAudioSorurcePlayedTime,
-      ReactionTime = reactionTime
-    }.ToString());
-  }
+        switch (message)
+        {
+            case "READY":
+                // Instead of logging, we could play a beep
+                Debug.Log("Arduino is ready.");
+                break;
+            case "BUTTON_PRESSED":
+                HandleButtonPress();
+                break;
+            default:
+                Debug.Log($"Unknown message from Arduino: {message}");
+                break;
+        }
+    }
+
+    private void HandleButtonPress()
+    {
+        var now          = Time.time;
+        var reactionTime = now - spawnNotification.LastAudioSorurcePlayedTime;
+
+        _reactionTimeExporter.AddData(new ReactionTimeDatum
+                                      {
+                                          AudioPlayedTime = spawnNotification.LastAudioSorurcePlayedTime,
+                                          ReactionTime = reactionTime
+                                      }.ToString());
+    }
 }
 
 internal record ReactionTimeDatum
 {
-  public float AudioPlayedTime { get; set; }
-  public float ReactionTime { get; set; }
+    public float AudioPlayedTime { get; set; }
+    public float ReactionTime { get; set; }
 }

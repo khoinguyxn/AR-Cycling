@@ -469,7 +469,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2f764c1f169293439d82f9259989c41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  notificationControl: {fileID: 1163151096}
+  gazeControl: {fileID: 654480810}
   dialogPool: {fileID: 1173149484}
+  menuDialog: {fileID: 290411856905126350, guid: a4a53f88809976447b0ae78544494c5d, type: 3}
+  reactionTimeTracker: {fileID: 1211945791}
 --- !u!4 &1173149486
 Transform:
   m_ObjectHideFlags: 0
@@ -515,6 +519,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spawnNotification: {fileID: 1163151101}
+  exportFileName: reaction-time
+  exportInterval: 1
 --- !u!4 &1211945793
 Transform:
   m_ObjectHideFlags: 0

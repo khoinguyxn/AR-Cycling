@@ -3,11 +3,11 @@ using UnityEngine;
 
 public class MenuControl : MonoBehaviour
 {
-    [SerializeField] private readonly GameObject notificationControl;
-    [SerializeField] private readonly GameObject gazeControl;
+    [SerializeField] private GameObject notificationControl;
+    [SerializeField] private GameObject gazeControl;
     public DialogPool dialogPool;
-    [SerializeField] private readonly GameObject menuDialog;
-    [SerializeField] private readonly GameObject reactionTimeTracker;
+    [SerializeField] private GameObject menuDialog;
+    [SerializeField] private GameObject reactionTimeTracker;
 
     private void Start()
     {
