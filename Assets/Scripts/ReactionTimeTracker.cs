@@ -11,6 +11,8 @@ public class ReactionTimeTracker : MonoBehaviour
     [SerializeField] private float exportInterval = 1f;
     private CsvExporter _reactionTimeExporter;
 
+    [SerializeField] private AudioSource audioSource;
+
     private string _inputBuffer = "";
 
     private void Awake()
@@ -57,8 +59,7 @@ public class ReactionTimeTracker : MonoBehaviour
         switch (message)
         {
             case "READY":
-                // Instead of logging, we could play a beep
-                Debug.Log("Arduino is ready.");
+                audioSource.Play();
                 break;
             case "BUTTON_PRESSED":
                 HandleButtonPress();
