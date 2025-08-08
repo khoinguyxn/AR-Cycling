@@ -6,20 +6,22 @@ bool lastButtonState = HIGH;
 void setup() {
   Serial.begin(9600);
 
-  pinMode(BUTTON_PIN, INPUT_PULLDOWN);
-
   Keyboard.begin();
 
-  Keyboard.println("READY");
+  // Keyboard.println("READY");
 }
 
 void loop() {
-  const bool currentButtonState = digitalRead(BUTTON_PIN);
+  // const bool currentButtonState = digitalRead(BUTTON_PIN);
 
-  if (lastButtonState == HIGH && currentButtonState == LOW) {
-    Keyboard.println("BUTTON_PRESSED");
-  }
+  // if (lastButtonState == HIGH && currentButtonState == LOW) {
+  //   Keyboard.println("BUTTON_PRESSED");
+  // }
 
-  lastButtonState = currentButtonState;
-  delay(10);
+  // lastButtonState = currentButtonState;
+  // delay(10);
+  Keyboard.press('a');
+  delay(100);
+  Keyboard.release('a');
+  delay(1000);
 }

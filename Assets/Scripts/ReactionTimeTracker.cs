@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class ReactionTimeTracker : MonoBehaviour
 {
@@ -29,26 +30,39 @@ public class ReactionTimeTracker : MonoBehaviour
 
     private void Update()
     {
-        foreach (var c in Input.inputString)
+        // Debug.Log($"Keyboard's input: {Input.inputString}");
+
+        // foreach (var c in Input.inputString)
+        // {
+        //     switch (c)
+        //     {
+        //         case '\n' or '\r':
+        //             // End of line - process the complete message
+        //             ProcessArduinoMessage(_inputBuffer.Trim());
+        //             _inputBuffer = "";
+        //             break;
+        //         case '\b':
+        //             {
+        //                 // Backspace
+        //                 if (_inputBuffer.Length > 0)
+        //                     _inputBuffer = _inputBuffer.Substring(0, _inputBuffer.Length - 1);
+        //                 break;
+        //             }
+        //         // Only printable characters
+        //         case >= ' ':
+        //             _inputBuffer += c;
+        //             break;
+        //     }
+        // }
+
+        if (Keyboard.current.anyKey.wasPressedThisFrame)
         {
-            switch (c)
+            foreach (var key in Keyboard.current.allKeys)
             {
-                case '\n' or '\r':
-                    // End of line - process the complete message
-                    ProcessArduinoMessage(_inputBuffer.Trim());
-                    _inputBuffer = "";
-                    break;
-                case '\b':
-                    {
-                        // Backspace
-                        if (_inputBuffer.Length > 0)
-                            _inputBuffer = _inputBuffer.Substring(0, _inputBuffer.Length - 1);
-                        break;
-                    }
-                // Only printable characters
-                case >= ' ':
-                    _inputBuffer += c;
-                    break;
+                if (key.wasPressedThisFrame)
+                {
+                    Debug.Log($"Arduino key: {key.displayName}");
+                }
             }
         }
 
@@ -57,6 +71,7 @@ public class ReactionTimeTracker : MonoBehaviour
 
     private void ProcessArduinoMessage(string message)
     {
+        Debug.Log($"Input message: {message}");
         switch (message)
         {
             case "READY":
