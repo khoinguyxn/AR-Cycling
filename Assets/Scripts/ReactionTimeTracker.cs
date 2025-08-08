@@ -5,7 +5,8 @@ public class ReactionTimeTracker : MonoBehaviour
 {
     [SerializeField] private SpawnNotification spawnNotification;
 
-    [Header("Export Settings")] [SerializeField]
+    [Header("Export Settings")]
+    [SerializeField]
     private string exportFileName = "reaction-time";
 
     [SerializeField] private float exportInterval = 1f;
@@ -17,9 +18,9 @@ public class ReactionTimeTracker : MonoBehaviour
 
     private void Awake()
     {
-        var          timeStamp            = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
-        var          reactionTimeFilePath = Application.persistentDataPath + $"/{exportFileName}_{timeStamp}.csv";
-        const string csvHeader            = "AudioPlayedTime (s),ReactionTime (s)";
+        var timeStamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+        var reactionTimeFilePath = Application.persistentDataPath + $"/{exportFileName}_{timeStamp}.csv";
+        const string csvHeader = "AudioPlayedTime (s),ReactionTime (s)";
 
         _reactionTimeExporter = new CsvExporter(reactionTimeFilePath, exportInterval, csvHeader);
 
@@ -38,12 +39,12 @@ public class ReactionTimeTracker : MonoBehaviour
                     _inputBuffer = "";
                     break;
                 case '\b':
-                {
-                    // Backspace
-                    if (_inputBuffer.Length > 0)
-                        _inputBuffer = _inputBuffer.Substring(0, _inputBuffer.Length - 1);
-                    break;
-                }
+                    {
+                        // Backspace
+                        if (_inputBuffer.Length > 0)
+                            _inputBuffer = _inputBuffer.Substring(0, _inputBuffer.Length - 1);
+                        break;
+                    }
                 // Only printable characters
                 case >= ' ':
                     _inputBuffer += c;
@@ -72,14 +73,14 @@ public class ReactionTimeTracker : MonoBehaviour
 
     private void HandleButtonPress()
     {
-        var now          = Time.time;
+        var now = Time.time;
         var reactionTime = now - spawnNotification.LastAudioSorurcePlayedTime;
 
         _reactionTimeExporter.AddData(new ReactionTimeDatum
-                                      {
-                                          AudioPlayedTime = spawnNotification.LastAudioSorurcePlayedTime,
-                                          ReactionTime = reactionTime
-                                      }.ToString());
+        {
+            AudioPlayedTime = spawnNotification.LastAudioSorurcePlayedTime,
+            ReactionTime = reactionTime
+        }.ToString());
     }
 }
 
@@ -87,4 +88,9 @@ internal record ReactionTimeDatum
 {
     public float AudioPlayedTime { get; set; }
     public float ReactionTime { get; set; }
+
+    public override string ToString()
+    {
+        return $"{AudioPlayedTime},{ReactionTime}";
+    }
 }
