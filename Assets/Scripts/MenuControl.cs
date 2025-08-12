@@ -7,7 +7,8 @@ public class MenuControl : MonoBehaviour
     [SerializeField] private GameObject gazeControl;
     public DialogPool dialogPool;
     [SerializeField] private GameObject menuDialog;
-    [SerializeField] private GameObject reactionTimeTracker;
+    [SerializeField] private GameObject reactionTimeTrackerObject;
+    [SerializeField] private ReactionTimeTracker reactionTimeTracker;
 
     private void Start()
     {
@@ -33,11 +34,14 @@ public class MenuControl : MonoBehaviour
                                         Debug.Log("Starting experiment!");
                                         EnableNotifications();
                                         StartEyeTracking();
-                                        StartReactionTimeTracker();
+                                        StartreactionTimeTrackerObject();
+
+                                        reactionTimeTracker.StartStudySession();
                                     })
               .SetNegative("Quit", _ =>
                                    {
                                        dialog.Dismiss();
+                                       reactionTimeTracker.EndStudySession();
 
                                        Debug.Log("End experiment!");
                                        QuitApplication();
@@ -65,8 +69,8 @@ public class MenuControl : MonoBehaviour
         SetGameObjectActive(notificationControl, true);
     }
 
-    private void StartReactionTimeTracker()
+    private void StartreactionTimeTrackerObject()
     {
-        SetGameObjectActive(reactionTimeTracker, true);
+        SetGameObjectActive(reactionTimeTrackerObject, true);
     }
 }

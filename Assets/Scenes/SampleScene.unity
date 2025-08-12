@@ -473,7 +473,8 @@ MonoBehaviour:
   gazeControl: {fileID: 654480810}
   dialogPool: {fileID: 1173149484}
   menuDialog: {fileID: 290411856905126350, guid: a4a53f88809976447b0ae78544494c5d, type: 3}
-  reactionTimeTracker: {fileID: 1211945791}
+  reactionTimeTrackerObject: {fileID: 1211945791}
+  reactionTimeTracker: {fileID: 1211945792}
 --- !u!4 &1173149486
 Transform:
   m_ObjectHideFlags: 0
@@ -521,7 +522,7 @@ MonoBehaviour:
   spawnNotification: {fileID: 1163151101}
   exportFileName: reaction-time
   exportInterval: 1
-  arduinoIp: 192.168.1.100
+  arduinoIp: 192.168.1.144
   arduinoPort: 8888
   reconnectInterval: 5
   connectionTimeout: 10

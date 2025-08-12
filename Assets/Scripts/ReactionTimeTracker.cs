@@ -28,6 +28,11 @@ public class ReactionTimeTracker : MonoBehaviour
     private Thread receiveThread;
     private bool isConnected;
     private bool shouldReconnect = true;
+    private MainThreadDispatcher dispatcher;
+
+    // Study session management
+    private bool isStudyActive = false;
+    private bool pendingStudyStart = false;
 
     private void Awake()
     {
@@ -36,7 +41,48 @@ public class ReactionTimeTracker : MonoBehaviour
 
     private void Start()
     {
+        dispatcher = MainThreadDispatcher.Instance;
         ConnectToArduino();
+    }
+
+    public void StartStudySession()
+    {
+        if (isStudyActive)
+        {
+            Debug.LogWarning("Study session already active");
+            return;
+        }
+
+        if (isConnected)
+        {
+            isStudyActive = true;
+            pendingStudyStart = false;
+            SendTcpMessage("START");
+            Debug.Log("Study session started");
+        }
+        else
+        {
+            pendingStudyStart = true;
+            Debug.Log("Study session queued - waiting for Arduino connection");
+        }
+    }
+
+    public void EndStudySession()
+    {
+        if (isConnected && isStudyActive)
+        {
+            isStudyActive = false;
+            SendTcpMessage("END");
+            Debug.Log("Study session ended");
+        }
+        else if (!isConnected)
+        {
+            Debug.LogWarning("Cannot end study - not connected to Arduino");
+        }
+        else
+        {
+            Debug.LogWarning("No active study session to end");
+        }
     }
 
     private void Update()
@@ -110,6 +156,12 @@ public class ReactionTimeTracker : MonoBehaviour
             receiveThread.Start();
 
             Debug.Log("Connected to Arduino!");
+
+            // If there's a pending study start request, execute it now
+            if (pendingStudyStart && !isStudyActive)
+            {
+                StartStudySession();
+            }
         }
         catch (Exception e)
         {
@@ -139,7 +191,7 @@ public class ReactionTimeTracker : MonoBehaviour
                         {
                             if (!string.IsNullOrEmpty(message))
                             {
-                                MainThreadDispatcher.Instance.Enqueue(() => ProcessMessage(message));
+                                dispatcher.Enqueue(() => ProcessMessage(message));
                             }
                         }
                     }
@@ -155,7 +207,7 @@ public class ReactionTimeTracker : MonoBehaviour
                 {
                     Debug.LogError($"Receive error: {e.Message}");
 
-                    MainThreadDispatcher.Instance.Enqueue(HandleConnectionLoss);
+                    dispatcher.Enqueue(HandleConnectionLoss);
                 }
                 break;
             }
@@ -168,6 +220,14 @@ public class ReactionTimeTracker : MonoBehaviour
         {
             Debug.LogWarning("Connection lost, attempting to reconnect...");
             isConnected = false;
+
+            // If study was active, queue it to restart after reconnection
+            if (isStudyActive)
+            {
+                pendingStudyStart = true;
+                Debug.Log("Study session will restart after reconnection");
+            }
+            isStudyActive = false;
 
             try
             {
@@ -228,6 +288,12 @@ public class ReactionTimeTracker : MonoBehaviour
             case "PING":
                 SendTcpMessage("PONG");
                 break;
+            case "READY":
+                Debug.Log("Arduino is ready for study session");
+                break;
+            case "ENDED":
+                Debug.Log("Arduino confirmed study session ended");
+                break;
             default:
                 Debug.Log($"Unknown message: {message}");
                 break;
@@ -261,6 +327,12 @@ public class ReactionTimeTracker : MonoBehaviour
 
     private void HandleButtonPress()
     {
+        if (!isStudyActive)
+        {
+            Debug.LogWarning("Button pressed but study session is not active");
+            return;
+        }
+
         var currentTime = Time.time;
         var reactionTime = currentTime - spawnNotification.LastAudioSorurcePlayedTime;
 
@@ -282,6 +354,7 @@ public class ReactionTimeTracker : MonoBehaviour
     private void OnDestroy()
     {
         Disconnect();
+        EndStudySession();
     }
 
     private void OnApplicationPause(bool pauseStatus)

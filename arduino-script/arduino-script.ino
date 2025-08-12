@@ -8,8 +8,8 @@
 
 
 // Network configurations
-char ssid[] = "vicon";     // your network SSID (name) // 5ghz band not supported, only 2.4ghz.
-char pass[] = "infotech";  // your network password
+char ssid[] = "ORBI80";          // your network SSID (name) // 5ghz band not supported, only 2.4ghz.
+char pass[] = "classychair864";  // your network password
 
 // TCP Configuration
 WiFiServer server(8888);  // TCP server on port 8888
@@ -17,12 +17,9 @@ WiFiClient client;        // TCP client connection
 
 // Button configurations
 const unsigned int BUTTON_PIN = 10;
-const unsigned long DEBOUNCE_DELAY = 50;  // 50 ms
 
 bool isUserStudyStarted = false;
 bool lastButtonState = HIGH;
-bool currentButtonState = HIGH;
-unsigned long lastDebounceTime = 0;
 
 // Connection management
 unsigned long lastHeartbeat = 0;
@@ -54,6 +51,7 @@ void setup() {
   // Start TCP server
   server.begin();
   Serial.printf("TCP server started on port 8888\n");
+
   Serial.println("Waiting for HoloLens connection...");
 }
 
@@ -97,38 +95,25 @@ void processIncomingMessages() {
 
 void handleButtonPresses() {
   // Read the button state
-  bool reading = digitalRead(BUTTON_PIN);
+  bool currentButtonState = digitalRead(BUTTON_PIN);
 
-  // Check if button state changed (for debouncing)
-  if (reading != lastButtonState) {
-    lastDebounceTime = millis();
-  }
+  // Button was released (went from LOW to HIGH with pull-up)
+  if (currentButtonState == HIGH && lastButtonState == LOW) {
+    Serial.println("Button released!");
 
-  // If enough time has passed since last state change
-  if ((millis() - lastDebounceTime) > DEBOUNCE_DELAY) {
-    // If button state has actually changed
-    if (reading != currentButtonState) {
-      currentButtonState = reading;
+    // Send to HoloLens only if system started and connected
+    if (isUserStudyStarted && isClientConnected) {
+      sendMessage("BUTTON_PRESSED");
 
-      // Button was released (went from LOW to HIGH with pull-up)
-      if (currentButtonState == HIGH && lastButtonState == LOW) {
-        Serial.println("Button released!");
-
-        // Send to HoloLens only if system started and connected
-        if (isUserStudyStarted && isClientConnected) {
-          sendMessage("BUTTON_PRESSED");
-
-          Serial.println("Button press sent to HoloLens");
-        } else if (!isUserStudyStarted) {
-          Serial.println("Button pressed - waiting for system start");
-        } else if (!isClientConnected) {
-          Serial.println("Button pressed - no HoloLens connection");
-        }
-      }
+      Serial.println("Button press sent to HoloLens");
+    } else if (!isUserStudyStarted) {
+      Serial.println("Button pressed - waiting for system start");
+    } else if (!isClientConnected) {
+      Serial.println("Button pressed - no HoloLens connection");
     }
   }
 
-  lastButtonState = reading;
+  lastButtonState = currentButtonState;
 }
 
 void onDataReceived(String data) {
@@ -145,7 +130,7 @@ void onDataReceived(String data) {
 
     sendMessage("ENDED");
   } else if (data == "PONG") {
-    Serial.println("Connection to Hololens is alive!")
+    Serial.println("Connection to Hololens is alive!");
   } else {
     Serial.println("Unknown command: " + data);
   }
