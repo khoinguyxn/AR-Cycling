@@ -522,7 +522,7 @@ MonoBehaviour:
   spawnNotification: {fileID: 1163151101}
   exportFileName: reaction-time
   exportInterval: 1
-  arduinoIp: 192.168.1.144
+  arduinoIp: 192.168.20.23
   arduinoPort: 8888
   reconnectInterval: 5
   connectionTimeout: 10

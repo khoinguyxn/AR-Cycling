@@ -7,32 +7,47 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
+#if UNITY_WSA && !UNITY_EDITOR
+using Windows.Networking;
+using Windows.Networking.Sockets;
+using Windows.Storage.Streams;
+using System.Runtime.InteropServices.WindowsRuntime;
+#endif
+
 public class ReactionTimeTracker : MonoBehaviour
 {
     [SerializeField] private SpawnNotification spawnNotification;
 
-    [Header("Export Settings")]
-    [SerializeField] private string exportFileName = "reaction-time";
+    [Header("Export Settings")] [SerializeField]
+    private string exportFileName = "reaction-time";
+
     [SerializeField] private float exportInterval = 1f;
     private CsvExporter _reactionTimeExporter;
 
-    [Header("Arduino Connection")]
-    [SerializeField] private string arduinoIp = "192.168.1.100";
+    [Header("Arduino Connection")] [SerializeField]
+    private string arduinoIp = "192.168.1.100";
+
     [SerializeField] private int arduinoPort = 8888;
     [SerializeField] private float reconnectInterval = 5f;
     [SerializeField] private float connectionTimeout = 10f;
 
     // TCP Connection
-    private TcpClient tcpClient;
-    private NetworkStream networkStream;
-    private Thread receiveThread;
-    private bool isConnected;
-    private bool shouldReconnect = true;
-    private MainThreadDispatcher dispatcher;
+    #if UNITY_WSA && !UNITY_EDITOR
+    private StreamSocket _streamSocket;
+    private DataWriter _dataWriter;
+    private DataReader _dataReader;
+    #else
+    private TcpClient _tcpClient;
+    private NetworkStream _networkStream;
+    #endif
+    private Thread _receiveThread;
+    private bool _isConnected;
+    private bool _shouldReconnect = true;
+    private MainThreadDispatcher _dispatcher;
 
     // Study session management
-    private bool isStudyActive = false;
-    private bool pendingStudyStart = false;
+    private bool _isStudyActive;
+    private bool _pendingStudyStart;
 
     private void Awake()
     {
@@ -41,47 +56,47 @@ public class ReactionTimeTracker : MonoBehaviour
 
     private void Start()
     {
-        dispatcher = MainThreadDispatcher.Instance;
+        _dispatcher = MainThreadDispatcher.Instance;
         ConnectToArduino();
     }
 
     public void StartStudySession()
     {
-        if (isStudyActive)
+        if (_isStudyActive)
         {
             Debug.LogWarning("Study session already active");
             return;
         }
 
-        if (isConnected)
+        if (_isConnected)
         {
-            isStudyActive = true;
-            pendingStudyStart = false;
+            _isStudyActive = true;
+            _pendingStudyStart = false;
             SendTcpMessage("START");
             Debug.Log("Study session started");
         }
         else
         {
-            pendingStudyStart = true;
+            _pendingStudyStart = true;
             Debug.Log("Study session queued - waiting for Arduino connection");
         }
     }
 
     public void EndStudySession()
     {
-        if (isConnected && isStudyActive)
+        switch (_isConnected)
         {
-            isStudyActive = false;
-            SendTcpMessage("END");
-            Debug.Log("Study session ended");
-        }
-        else if (!isConnected)
-        {
-            Debug.LogWarning("Cannot end study - not connected to Arduino");
-        }
-        else
-        {
-            Debug.LogWarning("No active study session to end");
+            case true when _isStudyActive:
+                _isStudyActive = false;
+                SendTcpMessage("END");
+                Debug.Log("Study session ended");
+                break;
+            case false:
+                Debug.LogWarning("Cannot end study - not connected to Arduino");
+                break;
+            default:
+                Debug.LogWarning("No active study session to end");
+                break;
         }
     }
 
@@ -94,8 +109,8 @@ public class ReactionTimeTracker : MonoBehaviour
 
     private void InitializeExporter()
     {
-        var timeStamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
-        var filePath = Application.persistentDataPath + $"/{exportFileName}_{timeStamp}.csv";
+        var          timeStamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+        var          filePath  = Application.persistentDataPath + $"/{exportFileName}_{timeStamp}.csv";
         const string csvHeader = "AudioPlayedTime (s),ReactionTime (s)";
 
         _reactionTimeExporter = new CsvExporter(filePath, exportInterval, csvHeader);
@@ -108,13 +123,18 @@ public class ReactionTimeTracker : MonoBehaviour
 
     private void ConnectToArduino()
     {
-        if (isConnected) return;
+        if (_isConnected) return;
 
         try
         {
             Debug.Log($"Connecting to Arduino at {arduinoIp}:{arduinoPort}");
-            tcpClient = new TcpClient();
-            StartCoroutine(ConnectWithTimeout(tcpClient.ConnectAsync(arduinoIp, arduinoPort)));
+
+            #if UNITY_WSA && !UNITY_EDITOR
+            StartCoroutine(ConnectWithStreamSocket());
+            #else
+            _tcpClient = new TcpClient();
+            StartCoroutine(ConnectWithTimeout(_tcpClient.ConnectAsync(arduinoIp, arduinoPort)));
+            #endif
         }
         catch (Exception e)
         {
@@ -125,7 +145,8 @@ public class ReactionTimeTracker : MonoBehaviour
 
     private IEnumerator ConnectWithTimeout(Task connectTask)
     {
-        float timer = 0f;
+        var timer = 0f;
+
         while (!connectTask.IsCompleted && timer < connectionTimeout)
         {
             timer += Time.deltaTime;
@@ -139,9 +160,86 @@ public class ReactionTimeTracker : MonoBehaviour
         else
         {
             Debug.LogError("Connection timeout or failed");
-
-            tcpClient?.Close();
+            #if !UNITY_WSA || UNITY_EDITOR
+            _tcpClient?.Close();
+            #endif
             ScheduleReconnect();
+        }
+    }
+
+    #if UNITY_WSA && !UNITY_EDITOR
+    private IEnumerator ConnectWithStreamSocket()
+    {
+        bool connectionCompleted = false;
+        bool connectionSuccessful = false;
+        
+        System.Threading.Tasks.Task.Run(async () =>
+        {
+            try
+            {
+                _streamSocket = new StreamSocket();
+                var hostName = new HostName(arduinoIp);
+                var serviceName = arduinoPort.ToString();
+                
+                await _streamSocket.ConnectAsync(hostName, serviceName);
+                
+                _dataWriter = new DataWriter(_streamSocket.OutputStream);
+                _dataReader = new DataReader(_streamSocket.InputStream);
+                _dataReader.InputStreamOptions = InputStreamOptions.Partial;
+                
+                connectionSuccessful = true;
+                connectionCompleted = true;
+                
+                Debug.Log("StreamSocket connected successfully!");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"StreamSocket connection failed: {e.Message}");
+                connectionSuccessful = false;
+                connectionCompleted = true;
+            }
+        });
+        
+        var timer = 0f;
+        
+        while (!connectionCompleted && timer < connectionTimeout)
+        {
+            timer += Time.deltaTime;
+            yield return null;
+        }
+        
+        if (connectionSuccessful)
+        {
+            OnConnectionEstablished();
+        }
+        else
+        {
+            Debug.LogError("StreamSocket connection timeout or failed");
+            CleanupConnection();
+            ScheduleReconnect();
+        }
+    }
+    #endif
+
+    private void CleanupConnection()
+    {
+        try
+        {
+            #if UNITY_WSA && !UNITY_EDITOR
+            _dataWriter?.Dispose();
+            _dataReader?.Dispose();
+            _streamSocket?.Dispose();
+            _dataWriter = null;
+            _dataReader = null;
+            _streamSocket = null;
+            #else
+            _networkStream?.Close();
+            _tcpClient?.Close();
+            #endif
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error cleaning up connection: {e.Message}");
         }
     }
 
@@ -149,16 +247,18 @@ public class ReactionTimeTracker : MonoBehaviour
     {
         try
         {
-            networkStream = tcpClient.GetStream();
-            isConnected = true;
+            #if !UNITY_WSA || UNITY_EDITOR
+            _networkStream = _tcpClient.GetStream();
+            #endif
+            _isConnected = true;
 
-            receiveThread = new Thread(ReceiveLoop) { IsBackground = true };
-            receiveThread.Start();
+            _receiveThread = new Thread(ReceiveLoop) { IsBackground = true };
+            _receiveThread.Start();
 
             Debug.Log("Connected to Arduino!");
 
             // If there's a pending study start request, execute it now
-            if (pendingStudyStart && !isStudyActive)
+            if (_pendingStudyStart && !_isStudyActive)
             {
                 StartStudySession();
             }
@@ -172,97 +272,123 @@ public class ReactionTimeTracker : MonoBehaviour
 
     private void ReceiveLoop()
     {
-        var buffer = new byte[1024];
-
-        while (isConnected)
+        while (_isConnected)
         {
             try
             {
-                if (networkStream.DataAvailable)
+                #if UNITY_WSA && !UNITY_EDITOR
+                ReceiveDataStreamSocket();
+                #else
+                ReceiveDataTcpClient();
+                #endif
+                Thread.Sleep(10);
+            }
+            catch (Exception e)
+            {
+                if (_isConnected)
                 {
-                    var bytesRead = networkStream.Read(buffer, 0, buffer.Length);
-
-                    if (bytesRead > 0)
-                    {
-                        var receivedData = Encoding.UTF8.GetString(buffer, 0, bytesRead).Trim();
-                        var messages = receivedData.Split('\n');
-
-                        foreach (var message in messages)
-                        {
-                            if (!string.IsNullOrEmpty(message))
-                            {
-                                dispatcher.Enqueue(() => ProcessMessage(message));
-                            }
-                        }
-                    }
+                    Debug.LogError($"Receive loop error: {e.Message}");
+                    _dispatcher.Enqueue(HandleConnectionLoss);
                 }
-                else
+
+                break;
+            }
+        }
+    }
+
+    #if !UNITY_WSA || UNITY_EDITOR
+    private void ReceiveDataTcpClient()
+    {
+        if (_networkStream.DataAvailable)
+        {
+            var buffer    = new byte[1024];
+            var bytesRead = _networkStream.Read(buffer, 0, buffer.Length);
+            if (bytesRead > 0)
+            {
+                var receivedData = Encoding.UTF8.GetString(buffer, 0, bytesRead).Trim();
+                ProcessReceivedData(receivedData);
+            }
+        }
+    }
+    #endif
+
+    #if UNITY_WSA && !UNITY_EDITOR
+    private void ReceiveDataStreamSocket()
+    {
+        System.Threading.Tasks.Task.Run(async () =>
+        {
+            try
+            {
+                var availableBytes = await _dataReader.LoadAsync(1024);
+                if (availableBytes > 0)
                 {
-                    Thread.Sleep(10);
+                    var receivedData = _dataReader.ReadString(availableBytes).Trim();
+                    ProcessReceivedData(receivedData);
                 }
             }
             catch (Exception e)
             {
-                if (isConnected)
+                if (_isConnected)
                 {
-                    Debug.LogError($"Receive error: {e.Message}");
-
-                    dispatcher.Enqueue(HandleConnectionLoss);
+                    Debug.LogError($"StreamSocket receive error: {e.Message}");
+                    _dispatcher.Enqueue(HandleConnectionLoss);
                 }
-                break;
+            }
+        });
+    }
+    #endif
+
+    private void ProcessReceivedData(string receivedData)
+    {
+        var messages = receivedData.Split('\n');
+        foreach (var message in messages)
+        {
+            if (!string.IsNullOrEmpty(message))
+            {
+                _dispatcher.Enqueue(() => ProcessMessage(message));
             }
         }
     }
 
     private void HandleConnectionLoss()
     {
-        if (isConnected)
+        if (!_isConnected) return;
+
+        Debug.LogWarning("Connection lost, attempting to reconnect...");
+        _isConnected = false;
+
+        // If study was active, queue it to restart after reconnection
+        if (_isStudyActive)
         {
-            Debug.LogWarning("Connection lost, attempting to reconnect...");
-            isConnected = false;
-
-            // If study was active, queue it to restart after reconnection
-            if (isStudyActive)
-            {
-                pendingStudyStart = true;
-                Debug.Log("Study session will restart after reconnection");
-            }
-            isStudyActive = false;
-
-            try
-            {
-                networkStream?.Close();
-                tcpClient?.Close();
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"Failed to handle connection loss: {e.Message}");
-            }
-
-            ScheduleReconnect();
+            _pendingStudyStart = true;
+            Debug.Log("Study session will restart after reconnection");
         }
+
+        _isStudyActive = false;
+
+        CleanupConnection();
+
+        ScheduleReconnect();
     }
 
     private void ScheduleReconnect()
     {
-        if (shouldReconnect)
-        {
-            Debug.Log($"Scheduling reconnect in {reconnectInterval} seconds");
+        if (!_shouldReconnect) return;
 
-            Invoke(nameof(ConnectToArduino), reconnectInterval);
-        }
+        Debug.Log($"Scheduling reconnect in {reconnectInterval} seconds");
+
+        Invoke(nameof(ConnectToArduino), reconnectInterval);
     }
 
-    public void Disconnect()
+    private void Disconnect()
     {
-        isConnected = false;
-        shouldReconnect = false;
+        _isConnected = false;
+        _shouldReconnect = false;
 
         try
         {
-            networkStream?.Close();
-            tcpClient?.Close();
-            receiveThread?.Join(1000);
+            CleanupConnection();
+            _receiveThread?.Join(1000);
         }
         catch (Exception e)
         {
@@ -302,7 +428,7 @@ public class ReactionTimeTracker : MonoBehaviour
 
     private void SendTcpMessage(string message)
     {
-        if (!isConnected || networkStream == null)
+        if (!_isConnected)
         {
             Debug.LogWarning($"Cannot send message '{message}' - not connected");
             return;
@@ -310,37 +436,71 @@ public class ReactionTimeTracker : MonoBehaviour
 
         try
         {
-            var data = Encoding.UTF8.GetBytes(message + "\n");
-
-            networkStream.Write(data, 0, data.Length);
-            networkStream.Flush();
-
+            #if UNITY_WSA && !UNITY_EDITOR
+            SendMessageStreamSocket(message);
+            #else
+            SendMessageTcpClient(message);
+            #endif
             Debug.Log($"Sent: {message}");
         }
         catch (Exception e)
         {
             Debug.LogError($"Failed to send message: {e.Message}");
-
             HandleConnectionLoss();
         }
     }
 
+    #if !UNITY_WSA || UNITY_EDITOR
+    private void SendMessageTcpClient(string message)
+    {
+        if (_networkStream == null)
+            throw new InvalidOperationException("NetworkStream is null");
+
+        var data = Encoding.UTF8.GetBytes(message + "\n");
+        _networkStream.Write(data, 0, data.Length);
+        _networkStream.Flush();
+    }
+    #endif
+
+    #if UNITY_WSA && !UNITY_EDITOR
+    private void SendMessageStreamSocket(string message)
+    {
+        if (_dataWriter == null)
+            throw new InvalidOperationException("DataWriter is null");
+
+        System.Threading.Tasks.Task.Run(async () =>
+        {
+            try
+            {
+                _dataWriter.WriteString(message + "\n");
+                await _dataWriter.StoreAsync();
+                await _dataWriter.FlushAsync();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Failed to send StreamSocket message: {e.Message}");
+                _dispatcher.Enqueue(HandleConnectionLoss);
+            }
+        });
+    }
+    #endif
+
     private void HandleButtonPress()
     {
-        if (!isStudyActive)
+        if (!_isStudyActive)
         {
             Debug.LogWarning("Button pressed but study session is not active");
             return;
         }
 
-        var currentTime = Time.time;
+        var currentTime  = Time.time;
         var reactionTime = currentTime - spawnNotification.LastAudioSorurcePlayedTime;
 
         var reactionData = new ReactionTimeDatum
-        {
-            AudioPlayedTime = spawnNotification.LastAudioSorurcePlayedTime,
-            ReactionTime = reactionTime
-        };
+                           {
+                               AudioPlayedTime = spawnNotification.LastAudioSorurcePlayedTime,
+                               ReactionTime = reactionTime
+                           };
 
         _reactionTimeExporter.AddData(reactionData.ToString());
 
@@ -355,19 +515,6 @@ public class ReactionTimeTracker : MonoBehaviour
     {
         Disconnect();
         EndStudySession();
-    }
-
-    private void OnApplicationPause(bool pauseStatus)
-    {
-        if (pauseStatus)
-        {
-            Disconnect();
-        }
-        else
-        {
-            shouldReconnect = true;
-            ConnectToArduino();
-        }
     }
 
     #endregion
@@ -393,16 +540,16 @@ internal class MainThreadDispatcher : MonoBehaviour
     {
         get
         {
-            if (_instance == null)
-            {
-                _instance = FindFirstObjectByType<MainThreadDispatcher>();
-                if (_instance == null)
-                {
-                    var go = new GameObject("MainThreadDispatcher");
-                    _instance = go.AddComponent<MainThreadDispatcher>();
-                    DontDestroyOnLoad(go);
-                }
-            }
+            if (_instance != null) return _instance;
+
+            _instance = FindFirstObjectByType<MainThreadDispatcher>();
+
+            if (_instance != null) return _instance;
+
+            var go = new GameObject("MainThreadDispatcher");
+            _instance = go.AddComponent<MainThreadDispatcher>();
+            DontDestroyOnLoad(go);
+
             return _instance;
         }
     }

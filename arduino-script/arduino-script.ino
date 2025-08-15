@@ -8,8 +8,8 @@
 
 
 // Network configurations
-char ssid[] = "ORBI80";          // your network SSID (name) // 5ghz band not supported, only 2.4ghz.
-char pass[] = "classychair864";  // your network password
+char ssid[] = "Wi-Fi 1BCC4F 2.4G";          // your network SSID (name) // 5ghz band not supported, only 2.4ghz.
+char pass[] = "Uz2e9u7z";  // your network password
 
 // TCP Configuration
 WiFiServer server(8888);  // TCP server on port 8888
