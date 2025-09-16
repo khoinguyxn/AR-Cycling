@@ -51,8 +51,6 @@ def export_arduino_data(data: str = Form(...), headers: Optional[str] = Form(Non
         file_name = f"{DEFAULT_CSV_FILE_NAME}-{now.strftime("%Y-%m-%d_%H-%M-%S")}.csv"
         file_path = os.path.join(CSV_BASE_PATH, file_name)
 
-        print(f"File path: {file_path}")
-
         headers_list = [header.strip() for header in headers.split(",")]
 
         # Split batch into individual rows and parse

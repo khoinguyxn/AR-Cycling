@@ -1,30 +1,48 @@
-#include <WiFi.h>
-#include <WiFiUdp.h>
-#include <HttpClient.h>
-#include <vector>
-#include <time.h>
-#include <TimeLib.h>
+/**
+ * RTC_NTPSync
+ * 
+ * This example shows how to set the RTC (Real Time Clock) on the Portenta C33 / UNO R4 WiFi
+ * to the current date and time retrieved from an NTP server on the Internet (pool.ntp.org).
+ * Then the current time from the RTC is printed to the Serial port.
+ * 
+ * Instructions:
+ * 1. Download the NTPClient library (https://github.com/arduino-libraries/NTPClient) through the Library Manager
+ * 2. Change the WiFi credentials in the arduino_secrets.h file to match your WiFi network.
+ * 3. Upload this sketch to Portenta C33 / UNO R4 WiFi.
+ * 4. Open the Serial Monitor.
+ * 
+ * Initial author: Sebastian Romero @sebromero
+ * 
+ * Find the full UNO R4 WiFi RTC documentation here:
+ * https://docs.arduino.cc/tutorials/uno-r4-wifi/rtc
+ */
 
+// Include the RTC library
+#include "RTC.h"
+
+//Include the NTP library
+#include <NTPClient.h>
+
+#if defined(ARDUINO_PORTENTA_C33)
+#include <WiFiC3.h>
+#elif defined(ARDUINO_UNOWIFIR4)
+#include <WiFiS3.h>
+#endif
+
+#include <WiFiUdp.h>
+
+#include <HttpClient.h>
 
 // Network configurations
-char ssid[] = "ORBI80";          // your network SSID (name) // 5ghz band not supported, only 2.4ghz.
-char pass[] = "classychair864";  // your network password
+char ssid[] = "Wi-Fi 1BCC4F 2.4G";  // your network SSID (name)
+char pass[] = "Uz2e9u7z";           // your network password (use for WPA, or use as key for WEP)
 
 // Server configuration
-const char* serverUrl = "http://127.0.0.1:8000";
+const char* serverAddress = "172.26.192.1";
+const int serverPort = 8000;
 
 // Button configurations
 const unsigned int BUTTON_PIN = 10;
-
-// Timing and buffering
-unsigned long lastButtonPress = 0;
-const unsigned long DEBOUNCE_DELAY = 200;
-const int MAX_BUFFER_SIZE = 50;
-const unsigned long SEND_INTERVAL = 30000;  // Send every 30 seconds
-unsigned long lastSendTime = 0;
-
-// Event buffer
-std::vector<String> eventBuffer;
 
 // Button state
 bool lastButtonState = HIGH;
@@ -34,26 +52,83 @@ bool currentButtonState = HIGH;
 WiFiClient wifiClient;
 
 // NFP config
-WiFiUDP wifiUdp;
-static const char ntpServerName[] = "time-a.timefreq.bldrdoc.gov";
-unsigned const localNfpPort = 8080;
+int wifiStatus = WL_IDLE_STATUS;
+WiFiUDP Udp;  // A UDP instance to let us send and receive packets over UDP
+NTPClient timeClient(Udp);
+const int TIMEZONE_OFFSET = 0;
+
+// Timing and buffering
+const int MAX_BUFFER_SIZE = 12;
+
+// Event buffer
+std::vector<String> eventBuffer;
+
+void printWifiStatus() {
+  // print the SSID of the network you're attached to:
+  Serial.print("SSID: ");
+  Serial.println(WiFi.SSID());
+
+  // print your board's IP address:
+  IPAddress ip = WiFi.localIP();
+  Serial.print("IP Address: ");
+  Serial.println(ip);
+
+  // print the received signal strength:
+  long rssi = WiFi.RSSI();
+  Serial.print("signal strength (RSSI):");
+  Serial.print(rssi);
+  Serial.println(" dBm");
+}
+
+void connectToWiFi() {
+  // check for the WiFi module:
+  if (WiFi.status() == WL_NO_MODULE) {
+    Serial.println("Communication with WiFi module failed!");
+    // don't continue
+    while (true)
+      ;
+  }
+
+  // attempt to connect to WiFi network:
+  while (wifiStatus != WL_CONNECTED) {
+    Serial.print("Attempting to connect to SSID: ");
+    Serial.println(ssid);
+    // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
+    wifiStatus = WiFi.begin(ssid, pass);
+
+    // wait 5 seconds for connection:
+    delay(5000);
+  }
+
+  Serial.println("Connected to WiFi");
+  printWifiStatus();
+}
 
 void setup() {
   Serial.begin(9600);
-  delay(1000);
-
-  // Initialize button
-  pinMode(BUTTON_PIN, INPUT_PULLUP);
-  Serial.println("Button initialized on pin 10");
+  while (!Serial)
+    ;
 
   connectToWiFi();
+  RTC.begin();
+  Serial.println("\nStarting connection to server...");
+  timeClient.begin();
+  timeClient.update();
 
-  wifiUdp.begin(localNfpPort);
-  Serial.println("waiting for sync");
-  setSyncProvider(getNtpTime);
+  auto unixTime = timeClient.getEpochTime() + (TIMEZONE_OFFSET * 3600);
 
-  Serial.println("\nNTP time synchronized!");
-  Serial.println("Current UTC time: " + now());
+  Serial.print("Unix time = ");
+  Serial.println(unixTime);
+
+  RTCTime timeToSet = RTCTime(unixTime);
+  RTC.setTime(timeToSet);
+
+  // Retrieve the date and time from the RTC and print them
+  RTCTime currentTime;
+  RTC.getTime(currentTime);
+  Serial.println("The RTC was just set to: " + String(currentTime));
+
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
 
   Serial.println("Button press logger ready!");
 }
@@ -64,71 +139,55 @@ void loop() {
   delay(10);
 }
 
-void connectToWiFi() {
-  WiFi.begin(ssid, pass);
-  Serial.print("Connecting to WiFi");
-
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.print(".");
-  }
-
-  Serial.println();
-  Serial.println("WiFi connected!");
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
-}
-
 void handleButtonPresses() {
   // Read the button state
   bool currentButtonState = digitalRead(BUTTON_PIN);
 
   // Button was released (went from LOW to HIGH with pull-up)
   if (currentButtonState == HIGH && lastButtonState == LOW) {
-    unsigned long currentTime = millis();
-
-    if (currentTime - lastButtonPress > DEBOUNCE_DELAY) {
-      logButtonPress();
-      lastButtonPress = currentTime;
-    }
+    logButtonPress();
   }
 
   lastButtonState = currentButtonState;
 }
 
 void logButtonPress() {
-  time_t utcTimestamp = now();
+  RTCTime currentTime;
+  RTC.getTime(currentTime);
 
   // Create CSV row: timestamp
-  String csvRow = utcTimestamp + ",";
+  String csvRow = String(currentTime) + ",";
 
   eventBuffer.push_back(csvRow);
 
-  Serial.println("Button press logged: " + utcTimestamp);
-  Serial.println("Buffer size: " + String(eventBuffer.size()));
+  Serial.print("Button press logged: ");
+  Serial.println(String(currentTime));
+
+  Serial.print("Buffer size: ");
+  Serial.println(String(eventBuffer.size()));
 
   // Force export if buffer is full
   if (eventBuffer.size() >= MAX_BUFFER_SIZE) {
     Serial.println("Buffer full, exporting immediately...");
-    exportBufferedEvents();
+    exportBuffer();
   }
 }
 
-void exportBufferedEvents() {
+void exportBuffer() {
   if (eventBuffer.empty()) {
     return;
   }
-
-  Serial.println("Exporting " + String(eventBuffer.size()) + " events...");
 
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println("WiFi disconnected, attempting reconnect...");
     connectToWiFi();
   }
 
-  HttpClient http(wifiClient);
-  http.sendHeader("Content-Type", "application/multipart/form-data");
-  http.setTimeout(10000);
+  Serial.println("Exporting " + String(eventBuffer.size()) + " events...");
+
+  HttpClient httpClient = HttpClient(wifiClient, serverAddress, serverPort);
+
+  const String CONTENT_TYPE = "application/x-www-form-urlencoded";
 
   // Create batch payload
   String headers = "utc_timestamp,";
@@ -138,88 +197,23 @@ void exportBufferedEvents() {
     csvData += event + "\\n";
   }
 
-  String postData = "data=" + csvData + "&headers=" + headers;
+  String payload = "data=" + csvData + "&headers=" + headers;
 
-  int httpResponseCode = http.post(serverUrl, postData.c_str());
+  httpClient.post("/export", CONTENT_TYPE, payload);
 
-  if (httpResponseCode == 200) {
-    Serial.println("✓ Events exported successfully!");
+  int responseStatusCode = httpClient.responseStatusCode();
+  String response = httpClient.responseBody();
+
+  Serial.print("Status code: ");
+  Serial.println(responseStatusCode);
+
+  Serial.print("Response body: ");
+  Serial.println(response);
+
+  if (responseStatusCode == 200) {
+    Serial.println("Export events successfully!");
     eventBuffer.clear();
-    lastSendTime = millis();
-
   } else {
-    Serial.println("Export failed: " + String(httpResponseCode));
+    Serial.println("Export events failed!");
   }
-
-  http.stop();
-}
-
-const int NTP_PACKET_SIZE = 48;      // NTP time is in the first 48 bytes of message
-byte packetBuffer[NTP_PACKET_SIZE];  //buffer to hold incoming & outgoing packets
-
-// Taken from: https://github.com/PaulStoffregen/Time/blob/master/examples/TimeNTP_ESP8266WiFi/TimeNTP_ESP8266WiFi.ino
-time_t getNtpTime() {
-  IPAddress ntpServerIP;  // NTP server's ip address
-
-  while (wifiUdp.parsePacket() > 0)
-    ;  // discard any previously received packets
-
-  Serial.println("Transmit NTP Request");
-
-  WiFi.hostByName(ntpServerName, ntpServerIP);
-
-  Serial.print(ntpServerName);
-  Serial.print(": ");
-  Serial.println(ntpServerIP);
-
-  sendNTPpacket(ntpServerIP);
-
-  uint32_t beginWait = millis();
-
-  while (millis() - beginWait < 1500) {
-    int size = wifiUdp.parsePacket();
-
-    if (size >= NTP_PACKET_SIZE) {
-      Serial.println("Receive NTP Response");
-
-      wifiUdp.read(packetBuffer, NTP_PACKET_SIZE);  // read packet into the buffer
-
-      unsigned long secsSince1900;
-      // convert four bytes starting at location 40 to a long integer
-      secsSince1900 = (unsigned long)packetBuffer[40] << 24;
-      secsSince1900 |= (unsigned long)packetBuffer[41] << 16;
-      secsSince1900 |= (unsigned long)packetBuffer[42] << 8;
-      secsSince1900 |= (unsigned long)packetBuffer[43];
-
-      return secsSince1900 - 2208988800UL + SECS_PER_HOUR;
-    }
-  }
-  
-  Serial.println("No NTP Response :-(");
-  return 0;  // return 0 if unable to get the time
-}
-
-// send an NTP request to the time server at the given address
-void sendNTPpacket(IPAddress& address) {
-  // set all bytes in the buffer to 0
-  memset(packetBuffer, 0, NTP_PACKET_SIZE);
-
-  // Initialize values needed to form NTP request
-  // (see URL above for details on the packets)
-  packetBuffer[0] = 0b11100011;  // LI, Version, Mode
-  packetBuffer[1] = 0;           // Stratum, or type of clock
-  packetBuffer[2] = 6;           // Polling Interval
-  packetBuffer[3] = 0xEC;        // Peer Clock Precision
-
-  // 8 bytes of zero for Root Delay & Root Dispersion
-  packetBuffer[12] = 49;
-  packetBuffer[13] = 0x4E;
-  packetBuffer[14] = 49;
-  packetBuffer[15] = 52;
-
-  // all NTP fields have been given values, now
-  // you can send a packet requesting a timestamp:
-  wifiUdp.beginPacket(address, 123);  //NTP requests are to port 123
-  wifiUdp.write(packetBuffer, NTP_PACKET_SIZE);
-  wifiUdp.endPacket();
 }
