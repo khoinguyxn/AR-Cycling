@@ -1,0 +1,11 @@
+[project]
+name = "python-scripts"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi[standard]>=0.116.1",
+    "python-multipart>=0.0.20",
+    "uvicorn[standard]>=0.35.0",
+]

@@ -1,7 +1,5 @@
-using System.Collections.Generic;
 using MixedReality.Toolkit.UX;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 public class MenuControl : MonoBehaviour
 {
@@ -9,6 +7,8 @@ public class MenuControl : MonoBehaviour
     [SerializeField] private GameObject gazeControl;
     public DialogPool dialogPool;
     [SerializeField] private GameObject menuDialog;
+    [SerializeField] private GameObject reactionTimeTrackerObject;
+    [SerializeField] private ReactionTimeTracker reactionTimeTracker;
 
     private void Start()
     {
@@ -34,10 +34,14 @@ public class MenuControl : MonoBehaviour
                                         Debug.Log("Starting experiment!");
                                         EnableNotifications();
                                         StartEyeTracking();
+                                        StartreactionTimeTrackerObject();
+
+                                        reactionTimeTracker.StartStudySession();
                                     })
               .SetNegative("Quit", _ =>
                                    {
                                        dialog.Dismiss();
+                                       reactionTimeTracker.EndStudySession();
 
                                        Debug.Log("End experiment!");
                                        QuitApplication();
@@ -63,5 +67,10 @@ public class MenuControl : MonoBehaviour
     private void EnableNotifications()
     {
         SetGameObjectActive(notificationControl, true);
+    }
+
+    private void StartreactionTimeTrackerObject()
+    {
+        SetGameObjectActive(reactionTimeTrackerObject, true);
     }
 }
