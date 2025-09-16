@@ -38,8 +38,8 @@ char ssid[] = "Wi-Fi 1BCC4F 2.4G";  // your network SSID (name)
 char pass[] = "Uz2e9u7z";           // your network password (use for WPA, or use as key for WEP)
 
 // Server configuration
-const char* serverAddress = "172.26.192.1";
-const int serverPort = 8000;
+const char* serverAddress = "ar-cycling.up.railway.app";
+const int serverPort = 443;
 
 // Button configurations
 const unsigned int BUTTON_PIN = 10;
@@ -49,7 +49,7 @@ bool lastButtonState = HIGH;
 bool currentButtonState = HIGH;
 
 // Wifi client
-WiFiClient wifiClient;
+WiFiSSLClient wifiClient;
 
 // NFP config
 int wifiStatus = WL_IDLE_STATUS;
@@ -62,6 +62,43 @@ const int MAX_BUFFER_SIZE = 12;
 
 // Event buffer
 std::vector<String> eventBuffer;
+
+const char* ROOT_CA =
+  "-----BEGIN CERTIFICATE-----\n"
+  "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\n"
+  "sg==\n"
+  "-----END CERTIFICATE-----\n";
 
 void printWifiStatus() {
   // print the SSID of the network you're attached to:
@@ -95,6 +132,7 @@ void connectToWiFi() {
     Serial.println(ssid);
     // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
     wifiStatus = WiFi.begin(ssid, pass);
+    wifiClient.setCACert(ROOT_CA);
 
     // wait 5 seconds for connection:
     delay(5000);
