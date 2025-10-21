@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System;
 
 
+
 public class SpawnNotification : MonoBehaviour
 {
     //ATTRIBUTES
@@ -14,16 +15,29 @@ public class SpawnNotification : MonoBehaviour
     public Camera userCamera;
     public GameObject signObject;
     public Material signMaterial;
+    public AudioSource audioSource;
     public GameObject audioControl;
     private AudioManager audioManager;
     private float distanceToSpawnObject;
     private float initialLeftOverDistance;
     private Vector3 userInitialPosition;
     private float previousSpeedNormalised;
+    public float timeBetweenAudio;
+    public float timeBetweenNotificationAndAudio;
+    public float audioProbability = 0.15f;
+    public bool showAllNotifications;
+    private float timeBetweenAudioTimer = 0;
+    private float timeBetweenNotificationAndAudioTimer = 0;
+    private float rngCheckTimer = 0f;
+    private float rngCheckDuration = 1f;
     private GameObject currentObject;
     private GameObject previousObject;
+    private List<GameObject> spawnedObjects;
     private Vector3 userPositionTracker;
     private CsvExporter _gameObjectSpawnTimeExporter;
+    [SerializeField] private MenuControl menuControl;
+    [SerializeField] private float endingMenuDistance = 0f;
+    private Vector3? lastNotificationPosition;
     private CsvExporter _debugExporter;
     // private CsvExporter _speedometerExporter;
     private float debugWriteTimer = 0f;
@@ -178,29 +192,17 @@ public class SpawnNotification : MonoBehaviour
 
         currentObject = notification.SpawnObject(notificationPosition, notificationRotation, new Vector3(1, 1, 1));
 
+        lastNotificationPosition = notificationPosition;
+
         _gameObjectSpawnTimeExporter.AddData(new GameObjectSpawnTimeDatum
         {
             TimeStamp = Time.time,
             Object = currentObject.name
         }.ToString());
 
-        _debugExporter.AddData(new DebugNotificationDatum
-        {
-            DistanceFromPreviousObject = GetUserDistance(),
-            DistanceToSpawnObject = distanceToSpawnObject,
-            UserPosition = userCamera.transform.position,
-            CurrentObjectPosition = currentObject != null ? currentObject.transform.position : new Vector3(0, 0, 0),
-            PreviousObjectPosition = previousObject != null ? previousObject.transform.position : new Vector3(0, 0, 0),
-            MovementVector = GetMovementVector(),
-            NotificationPosition = notificationPosition,
-            NotificationRotation = notificationRotation,
-            NotificationsRemaining = notifications.Count,
-        }.ToString());
-
-        userInitialPosition = new Vector3(userCamera.transform.position.x, userCamera.transform.position.y, userCamera.transform.position.z);
-
-        audioManager.OnNotificationSpawn(notification);
+        timeBetweenNotificationAndAudioTimer = 0;
     }
+
 
 
     private void SpawnNextNotification()
@@ -248,17 +250,17 @@ public class SpawnNotification : MonoBehaviour
             new List<(Notification, float)>
             {
                 (CreateModel(true, leftPosition, "Models/waterfountain/WaterFountain", new Vector3(20, 20, 20), 5), 5),
-                (CreateModel(true, leftPosition, "Models/Toilet/Toilet", new Vector3(50, 50, 50), 5), 65), //ML1
-                (CreateSprite(true, topPosition, "SignImages/dangerous_intersection"), 195), //ST1
-                (CreateModel(true, topPosition, "Models/Cafe/Cafe", new Vector3(50, 50, 50), 5), 47), //MT1
-                (CreateSprite(true, leftPosition, "SignImages/school_of_biological_science"), 85), //SL1
-                (CreateModel(true, topPosition, "Models/waterfountain/WaterFountain", new Vector3(20, 20, 20), 5),  135), //MT2
-                (CreateSprite(true, topPosition, "SignImages/bus_loop"), 181), //ST2
-                (CreateSprite(true, leftPosition, "SignImages/watch_for_pedestrians"), 108), //SL2
-                (CreateModel(true, leftPosition, "Models/Sushi/salmonroe", new Vector3(15, 15, 15), 5), 106), //ML2
-                (CreateSprite(true, topPosition, "SignImages/library"), 143), //ST3
-                (CreateModel(true, leftPosition, "Models/Donut/donut", new Vector3(150, 150, 150), 5), 138), //ML3
-                (CreateSprite(true, leftPosition, "SignImages/give_way"), 130), //SL3
+                // (CreateModel(true, leftPosition, "Models/Toilet/Toilet", new Vector3(50, 50, 50), 5), 65), //ML1
+                // (CreateSprite(true, topPosition, "SignImages/dangerous_intersection"), 195), //ST1
+                // (CreateModel(true, topPosition, "Models/Cafe/Cafe", new Vector3(50, 50, 50), 5), 47), //MT1
+                // (CreateSprite(true, leftPosition, "SignImages/school_of_biological_science"), 85), //SL1
+                // (CreateModel(true, topPosition, "Models/waterfountain/WaterFountain", new Vector3(20, 20, 20), 5),  135), //MT2
+                // (CreateSprite(true, topPosition, "SignImages/bus_loop"), 181), //ST2
+                // (CreateSprite(true, leftPosition, "SignImages/watch_for_pedestrians"), 108), //SL2
+                // (CreateModel(true, leftPosition, "Models/Sushi/salmonroe", new Vector3(15, 15, 15), 5), 106), //ML2
+                // (CreateSprite(true, topPosition, "SignImages/library"), 143), //ST3
+                // (CreateModel(true, leftPosition, "Models/Donut/donut", new Vector3(150, 150, 150), 5), 138), //ML3
+                // (CreateSprite(true, leftPosition, "SignImages/give_way"), 130), //SL3
             }
 
             /*
@@ -293,6 +295,7 @@ public class SpawnNotification : MonoBehaviour
             distanceToSpawnObject = firstNotificationDistance;
         }
     }
+
 
 
     // Update is called once per frame
@@ -337,6 +340,21 @@ public class SpawnNotification : MonoBehaviour
             if (GetUserDistance() >= distanceToSpawnObject)
             {
                 SpawnNextNotification();
+            }
+        }
+        else
+        {
+            if (lastNotificationPosition.HasValue)
+            {
+                var distanceTraveled = Vector3.Distance(userCamera.transform.position, lastNotificationPosition.Value);
+
+                if (distanceTraveled >= endingMenuDistance)
+                {
+                    Debug.Log("Showing ending menu!");
+
+                    menuControl.ShowEndingMenuDialog();
+                    lastNotificationPosition = null;
+                }
             }
         }
 
