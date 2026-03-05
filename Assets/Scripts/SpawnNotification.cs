@@ -180,7 +180,7 @@ public class SpawnNotification : MonoBehaviour
 
         _gameObjectSpawnTimeExporter.AddData(new GameObjectSpawnTimeDatum
         {
-            TimeStamp = Time.time,
+            TimeStampUtc = DateTimeOffset.UtcNow.ToString("O"),
             Object = currentObject.name
         }.ToString());
 
@@ -376,7 +376,7 @@ public class SpawnNotification : MonoBehaviour
         var timeStamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
 
         var gameObjectSpawnTimeFilePath = Application.persistentDataPath + $"/{exportNotificationFileName}_{timeStamp}.csv";
-        const string csvHeaderNotification = "Time (s),Object";
+        const string csvHeaderNotification = "TimestampUtc,Object";
         _gameObjectSpawnTimeExporter = new CsvExporter(gameObjectSpawnTimeFilePath, exportInterval, csvHeaderNotification);
 
         var debugDataFilePath = Application.persistentDataPath + $"/{exportDebugFileName} _{timeStamp}.csv";
@@ -404,12 +404,12 @@ public class SpawnNotification : MonoBehaviour
 
 internal record GameObjectSpawnTimeDatum
 {
-    public float TimeStamp { get; set; }
+    public string TimeStampUtc { get; set; }
     public string Object { get; set; }
 
     public override string ToString()
     {
-        return $"{TimeStamp},{Object}";
+        return $"{TimeStampUtc ?? ""},{Object}";
     }
 }
 

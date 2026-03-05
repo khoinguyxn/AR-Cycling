@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class AudioManager : MonoBehaviour
@@ -12,9 +13,11 @@ public class AudioManager : MonoBehaviour
     private float rngCheckTimer = 0f;
     private float rngCheckDuration = 1f;
 
-    private float lastAudioPlayTime = -1f;
+    private float _lastAudioPlayRealtime = -1f;
+    private string _lastAudioPlayTimestampUtc = "";
 
-    public float LastAudioPlayTime => lastAudioPlayTime;
+    public float LastAudioPlayRealtime => _lastAudioPlayRealtime;
+    public string LastAudioPlayTimestampUtc => _lastAudioPlayTimestampUtc;
 
 
 
@@ -22,7 +25,8 @@ public class AudioManager : MonoBehaviour
     private void playAudio()
     {
         timeBetweenAudioTimer = 0;
-        lastAudioPlayTime = Time.time;
+        _lastAudioPlayRealtime = Time.realtimeSinceStartup;
+        _lastAudioPlayTimestampUtc = DateTimeOffset.UtcNow.ToString("O");
         audioSource.Play();
     }
 

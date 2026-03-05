@@ -8,7 +8,7 @@ public class CsvExporter
     private readonly string _filePath;
     private readonly float _exportInterval;
     private readonly string _csvHeader;
-    private float _lastFlushedTime = Time.time;
+    private float _lastFlushedRealtime = Time.realtimeSinceStartup;
     public int BufferCount => _dataBuffer.Count;
     
     public CsvExporter(string filePath, float exportInterval, string csvHeader)
@@ -27,7 +27,7 @@ public class CsvExporter
     {
         if (_dataBuffer.Count == 0) return;
 
-        if (Time.time - _lastFlushedTime >= _exportInterval)
+        if (Time.realtimeSinceStartup - _lastFlushedRealtime >= _exportInterval)
         {
             FlushData();
         }
@@ -53,7 +53,7 @@ public class CsvExporter
 
         writer.Flush();
         _dataBuffer.Clear();
-        _lastFlushedTime = Time.time;
+        _lastFlushedRealtime = Time.realtimeSinceStartup;
     }
     
     public void ForceFlush()
