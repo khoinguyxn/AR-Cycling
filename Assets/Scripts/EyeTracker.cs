@@ -37,7 +37,7 @@ public class EyeTracker : MonoBehaviour
     {
         var          timeStamp           = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
         var          eyeTrackingFilePath = Application.persistentDataPath + $"/{exportFileName}_{timeStamp}.csv";
-        const string csvHeader           = "TimestampUtc,GazingObject,GazingTimer (s)";
+        const string csvHeader           = "TimestampLocal,GazingObject,GazingTimer (s)";
 
         _eyeTrackingExporter = new CsvExporter(eyeTrackingFilePath, exportInterval, csvHeader);
 
@@ -92,7 +92,7 @@ public class EyeTracker : MonoBehaviour
             // Gazing at a different object
             _eyeTrackingExporter.AddData(new EyeTrackingDatum
                                          {
-                                             TimeStampUtc = DateTimeOffset.UtcNow.ToString("O"),
+                                             TimeStampLocal = DateTimeOffset.Now.ToString("O"),
                                              GazingObject = gazingObject.name,
                                              GazingTimer = _currentGazingTimer
                                          }.ToString());
@@ -111,7 +111,7 @@ public class EyeTracker : MonoBehaviour
         // Record data if users were previously gazing at something
         _eyeTrackingExporter.AddData(new EyeTrackingDatum
                                      {
-                                         TimeStampUtc = DateTimeOffset.UtcNow.ToString("O"),
+                                         TimeStampLocal = DateTimeOffset.Now.ToString("O"),
                                          GazingObject = "Nothing",
                                          GazingTimer = _currentGazingTimer
                                      }.ToString());
@@ -146,12 +146,12 @@ public class EyeTracker : MonoBehaviour
 
 internal record EyeTrackingDatum
 {
-    public string TimeStampUtc { get; set; }
+    public string TimeStampLocal { get; set; }
     public string GazingObject { get; set; }
     public float GazingTimer { get; set; }
 
     public override string ToString()
     {
-        return $"{TimeStampUtc ?? ""},{GazingObject},{GazingTimer}";
+        return $"{TimeStampLocal ?? ""},{GazingObject},{GazingTimer}";
     }
 }

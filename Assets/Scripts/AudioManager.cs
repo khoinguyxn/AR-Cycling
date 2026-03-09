@@ -14,10 +14,10 @@ public class AudioManager : MonoBehaviour
     private float rngCheckDuration = 1f;
 
     private float _lastAudioPlayRealtime = -1f;
-    private string _lastAudioPlayTimestampUtc = "";
+    private string _lastAudioPlayTimestampLocal = "";
 
     public float LastAudioPlayRealtime => _lastAudioPlayRealtime;
-    public string LastAudioPlayTimestampUtc => _lastAudioPlayTimestampUtc;
+    public string LastAudioPlayTimestampLocal => _lastAudioPlayTimestampLocal;
 
 
 
@@ -26,7 +26,7 @@ public class AudioManager : MonoBehaviour
     {
         timeBetweenAudioTimer = 0;
         _lastAudioPlayRealtime = Time.realtimeSinceStartup;
-        _lastAudioPlayTimestampUtc = DateTimeOffset.UtcNow.ToString("O");
+        _lastAudioPlayTimestampLocal = DateTimeOffset.Now.ToString("O");
         audioSource.Play();
     }
 

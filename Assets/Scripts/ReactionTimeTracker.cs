@@ -10,7 +10,7 @@ public class ReactionTimeTracker : MonoBehaviour
     private CsvExporter _reactionTimeExporter;
     private bool _waitingForResponse = false;
     private float _currentAudioPlayRealtime = -1f;
-    private string _currentAudioPlayTimestampUtc = "";
+    private string _currentAudioPlayTimestampLocal = "";
 
     [Header("Export Settings")]
     [SerializeField] private string exportFileName = "reaction-time";
@@ -21,7 +21,7 @@ public class ReactionTimeTracker : MonoBehaviour
     {
         var timeStamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
         var reactionTimeFilePath = Application.persistentDataPath + $"/{exportFileName}_{timeStamp}.csv";
-        const string csvHeader = "AudioPlayTimestampUtc,ButtonPressTimestampUtc,ReactionTimeMs,AudioType,ResponseType";
+        const string csvHeader = "AudioPlayTimestampLocal,ButtonPressTimestampLocal,ReactionTimeMs,AudioType,ResponseType";
 
         _reactionTimeExporter = new CsvExporter(reactionTimeFilePath, exportInterval, csvHeader);
 
@@ -47,7 +47,7 @@ public class ReactionTimeTracker : MonoBehaviour
         if (audioPlayRealtime > 0 && !Mathf.Approximately(audioPlayRealtime, _currentAudioPlayRealtime))
         {
             _currentAudioPlayRealtime = audioPlayRealtime;
-            _currentAudioPlayTimestampUtc = audioManager.LastAudioPlayTimestampUtc;
+            _currentAudioPlayTimestampLocal = audioManager.LastAudioPlayTimestampLocal;
             _waitingForResponse = true;
         }
     }
@@ -58,7 +58,7 @@ public class ReactionTimeTracker : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.A))
         {
             float buttonPressRealtime = Time.realtimeSinceStartup;
-            string buttonPressTimestampUtc = DateTimeOffset.UtcNow.ToString("O");
+            string buttonPressTimestampLocal = DateTimeOffset.Now.ToString("O");
 
             // Check if this is a response to recent audio
             if (_waitingForResponse && (buttonPressRealtime - _currentAudioPlayRealtime) <= reactionTimeoutWindow)
@@ -68,8 +68,8 @@ public class ReactionTimeTracker : MonoBehaviour
 
                 _reactionTimeExporter.AddData(new ReactionTimeDatum
                 {
-                    AudioPlayTimestampUtc = _currentAudioPlayTimestampUtc,
-                    ButtonPressTimestampUtc = buttonPressTimestampUtc,
+                    AudioPlayTimestampLocal = _currentAudioPlayTimestampLocal,
+                    ButtonPressTimestampLocal = buttonPressTimestampLocal,
                     ReactionTimeMs = reactionTime,
                     AudioType = "Audio",
                     ResponseType = "ValidResponse"
@@ -86,8 +86,8 @@ public class ReactionTimeTracker : MonoBehaviour
 
                 _reactionTimeExporter.AddData(new ReactionTimeDatum
                 {
-                    AudioPlayTimestampUtc = _currentAudioPlayTimestampUtc,
-                    ButtonPressTimestampUtc = buttonPressTimestampUtc,
+                    AudioPlayTimestampLocal = _currentAudioPlayTimestampLocal,
+                    ButtonPressTimestampLocal = buttonPressTimestampLocal,
                     ReactionTimeMs = reactionTime,
                     AudioType = "Audio",
                     ResponseType = "LateResponse"
@@ -100,8 +100,8 @@ public class ReactionTimeTracker : MonoBehaviour
                 // False positive (button pressed without recent audio)
                 _reactionTimeExporter.AddData(new ReactionTimeDatum
                 {
-                    AudioPlayTimestampUtc = _currentAudioPlayRealtime > 0 ? _currentAudioPlayTimestampUtc : "",
-                    ButtonPressTimestampUtc = buttonPressTimestampUtc,
+                    AudioPlayTimestampLocal = _currentAudioPlayRealtime > 0 ? _currentAudioPlayTimestampLocal : "",
+                    ButtonPressTimestampLocal = buttonPressTimestampLocal,
                     ReactionTimeMs = -1,
                     AudioType = "None",
                     ResponseType = "FalsePositive"
@@ -119,8 +119,8 @@ public class ReactionTimeTracker : MonoBehaviour
         {
             _reactionTimeExporter.AddData(new ReactionTimeDatum
             {
-                AudioPlayTimestampUtc = _currentAudioPlayTimestampUtc,
-                ButtonPressTimestampUtc = "",
+                AudioPlayTimestampLocal = _currentAudioPlayTimestampLocal,
+                ButtonPressTimestampLocal = "",
                 ReactionTimeMs = -1,
                 AudioType = "Audio",
                 ResponseType = "MissedResponse"
@@ -144,14 +144,14 @@ public class ReactionTimeTracker : MonoBehaviour
 
 internal record ReactionTimeDatum
 {
-    public string AudioPlayTimestampUtc { get; set; }
-    public string ButtonPressTimestampUtc { get; set; }
+    public string AudioPlayTimestampLocal { get; set; }
+    public string ButtonPressTimestampLocal { get; set; }
     public float ReactionTimeMs { get; set; }
     public string AudioType { get; set; }
     public string ResponseType { get; set; }
 
     public override string ToString()
     {
-        return $"{AudioPlayTimestampUtc ?? ""},{ButtonPressTimestampUtc ?? ""},{ReactionTimeMs:F2},{AudioType},{ResponseType}";
+        return $"{AudioPlayTimestampLocal ?? ""},{ButtonPressTimestampLocal ?? ""},{ReactionTimeMs:F2},{AudioType},{ResponseType}";
     }
 }
