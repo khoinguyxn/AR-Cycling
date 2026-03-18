@@ -15,29 +15,54 @@ public enum NavigationDirection
 [Serializable]
 public class NavigationCue
 {
-    [Tooltip("Trigger distance in meters from ride start.")]
-    public float triggerDistanceMeters;
-
-    [Tooltip("Used to auto-generate a default label.")]
-    public NavigationDirection direction;
-
-    [Tooltip("Optional custom label shown in debug logs.")]
+    [Tooltip("Optional label used in debug logs and the inspector.")]
     public string label;
 
-    [Tooltip("Optional resource texture path, e.g. SignImages/keep_left")]
+    [Tooltip("Used to generate a default label when Label is empty.")]
+    public NavigationDirection direction;
+
+    [Tooltip("Scene anchor that defines the world-space sign position and forward direction.")]
+    public Transform anchor;
+
+    [Tooltip("Optional prefab override for this cue. Falls back to the component default prefab.")]
+    public GameObject prefabOverride;
+
+    [Tooltip("Optional material override for this cue. Falls back to the component default material.")]
+    public Material materialOverride;
+
+    [Tooltip("Optional resource texture path, e.g. SignImages/turn_left")]
     public string textureResourcePath;
 
-    [Tooltip("Per-cue local offset relative to the default anchor.")]
+    [Tooltip("Local position offset from the anchor transform.")]
     public Vector3 localPositionOffset = Vector3.zero;
 
-    [Tooltip("Per-cue local euler rotation in degrees.")]
+    [Tooltip("Local euler rotation offset from the anchor transform.")]
     public Vector3 localEulerOffset = Vector3.zero;
 
-    [Tooltip("Per-cue local scale multiplier.")]
-    public Vector3 localScaleMultiplier = Vector3.one;
+    [Tooltip("Local scale applied to the spawned sign.")]
+    public Vector3 localScale = Vector3.one;
 
-    [Tooltip("How long this cue stays visible (seconds).")]
-    public float visibleDurationSeconds = 4f;
+    [Tooltip("Cue becomes visible when the rider is within this planar distance of the anchor.")]
+    public float showWithinDistanceMeters = 30f;
+
+    [Tooltip("Cue is considered passed once the rider has moved this far beyond the anchor forward axis.")]
+    public float hideAfterPassingMeters = 6f;
+
+    [Tooltip("Keep the cue active after it becomes visible until the rider passes it.")]
+    public bool persistUntilPassed = true;
+
+    [Tooltip("Fade in duration in seconds.")]
+    public float fadeInDurationSeconds = 0.35f;
+
+    [Tooltip("Fade out duration in seconds.")]
+    public float fadeOutDurationSeconds = 0.25f;
+
+    [NonSerialized] public bool HasBeenShown;
+    [NonSerialized] public bool IsCompleted;
+    [NonSerialized] public GameObject ActiveInstance;
+    [NonSerialized] public Renderer[] ActiveRenderers;
+    [NonSerialized] public float CurrentAlpha;
+    [NonSerialized] public bool IsFadingOut;
 
     public string GetResolvedLabel()
     {
@@ -60,53 +85,10 @@ public class NavigationGuidance : MonoBehaviour
     [SerializeField] private Camera userCamera;
     [SerializeField] private GameObject guidancePrefab;
     [SerializeField] private Material guidanceMaterial;
+    [SerializeField] private Transform spawnedCueContainer;
 
-    [Header("Screen-Locked Placement")]
-    [SerializeField] private Vector3 defaultLocalPosition = new Vector3(0f, 0.22f, 1.2f);
-    [SerializeField] private Vector3 defaultLocalEuler = Vector3.zero;
-    [SerializeField] private Vector3 defaultLocalScale = new Vector3(0.5f, 0.35f, 0.5f);
-
-    [Header("Distance Tracking")]
-    [SerializeField] private bool ignoreVerticalMovement = true;
-    [SerializeField] private float maxFrameDistanceMeters = 3f;
-
-    [Header("Navigation Cues")]
-    [SerializeField] private List<NavigationCue> cues = new List<NavigationCue>
-    {
-        new NavigationCue
-        {
-            triggerDistanceMeters = 270f,
-            direction = NavigationDirection.Left,
-            label = "Turn left",
-            textureResourcePath = "SignImages/turn_left",
-            visibleDurationSeconds = 4f
-        },
-        new NavigationCue
-        {
-            triggerDistanceMeters = 330f,
-            direction = NavigationDirection.Left,
-            label = "Turn left",
-            textureResourcePath = "SignImages/turn_left",
-            visibleDurationSeconds = 4f
-        },
-        new NavigationCue
-        {
-            triggerDistanceMeters = 345f,
-            direction = NavigationDirection.Right,
-            label = "Turn right",
-            textureResourcePath = "SignImages/turn_right",
-            visibleDurationSeconds = 4f
-        }
-    };
-
-    private readonly List<NavigationCue> _sortedCues = new List<NavigationCue>();
-    private Vector3 _previousUserPosition;
-    private int _nextCueIndex;
-    private float _totalDistanceTravelledMeters;
-    private GameObject _activeCueObject;
-
-
-    public float TotalDistanceTravelledMeters => _totalDistanceTravelledMeters;
+    [Header("Cue Authoring")]
+    [SerializeField] private List<NavigationCue> cues = new List<NavigationCue>();
 
 
     private void Start()
@@ -130,137 +112,236 @@ public class NavigationGuidance : MonoBehaviour
             return;
         }
 
-        _previousUserPosition = userCamera.transform.position;
-
-        _sortedCues.Clear();
-        _sortedCues.AddRange(cues);
-        _sortedCues.Sort((a, b) => a.triggerDistanceMeters.CompareTo(b.triggerDistanceMeters));
+        ResetProgress();
     }
 
 
     private void Update()
     {
-        TrackDistance();
-        TriggerDueCue();
+        if (userCamera == null) return;
+
+        for (int i = 0; i < cues.Count; i++)
+        {
+            UpdateCue(cues[i]);
+        }
     }
 
 
-    [ContextMenu("Reset Distance Progress")]
+    [ContextMenu("Reset Navigation Progress")]
     public void ResetProgress()
     {
-        _totalDistanceTravelledMeters = 0f;
-        _nextCueIndex = 0;
-        _previousUserPosition = userCamera != null ? userCamera.transform.position : Vector3.zero;
-
-        if (_activeCueObject != null)
+        for (int i = 0; i < cues.Count; i++)
         {
-            Destroy(_activeCueObject);
-            _activeCueObject = null;
+            NavigationCue cue = cues[i];
+            cue.HasBeenShown = false;
+            cue.IsCompleted = false;
+            cue.IsFadingOut = false;
+            cue.CurrentAlpha = 0f;
+            cue.ActiveRenderers = null;
+
+            if (cue.ActiveInstance != null)
+            {
+                Destroy(cue.ActiveInstance);
+                cue.ActiveInstance = null;
+            }
         }
     }
 
 
-    private void TrackDistance()
+    private void UpdateCue(NavigationCue cue)
     {
-        Vector3 currentPosition = userCamera.transform.position;
-        Vector3 movement = currentPosition - _previousUserPosition;
-        if (ignoreVerticalMovement)
-        {
-            movement.y = 0f;
-        }
-
-        float frameDistance = movement.magnitude;
-
-        // Ignore very large single-frame jumps (teleport spikes).
-        if (frameDistance <= maxFrameDistanceMeters)
-        {
-            _totalDistanceTravelledMeters += frameDistance;
-        }
-
-        _previousUserPosition = currentPosition;
-    }
-
-
-    private void TriggerDueCue()
-    {
-        if (_nextCueIndex >= _sortedCues.Count)
+        if (cue == null || cue.IsCompleted || cue.anchor == null)
         {
             return;
         }
 
-        NavigationCue cue = _sortedCues[_nextCueIndex];
-        if (_totalDistanceTravelledMeters < cue.triggerDistanceMeters)
+        Vector3 riderPosition = userCamera.transform.position;
+        Vector3 anchorPosition = cue.anchor.position;
+
+        Vector3 planarOffset = riderPosition - anchorPosition;
+        planarOffset.y = 0f;
+
+        float planarDistance = planarOffset.magnitude;
+        float passedDistance = Vector3.Dot(planarOffset, cue.anchor.forward);
+
+        if (!cue.HasBeenShown)
         {
+            if (planarDistance <= Mathf.Max(0.01f, cue.showWithinDistanceMeters))
+            {
+                ShowCue(cue);
+            }
+
             return;
         }
 
-        ShowCue(cue);
-        _nextCueIndex++;
+        if (cue.ActiveInstance == null)
+        {
+            cue.IsCompleted = true;
+            return;
+        }
+
+        UpdateCueFade(cue);
+
+        bool hasPassedCue = passedDistance >= Mathf.Max(0f, cue.hideAfterPassingMeters);
+        bool shouldHideBeforePassing = !cue.persistUntilPassed && planarDistance > cue.showWithinDistanceMeters;
+
+        if (hasPassedCue || shouldHideBeforePassing)
+        {
+            BeginHideCue(cue);
+        }
     }
 
 
     private void ShowCue(NavigationCue cue)
     {
-        if (_activeCueObject != null)
+        GameObject prefabToSpawn = cue.prefabOverride != null ? cue.prefabOverride : guidancePrefab;
+        if (prefabToSpawn == null)
         {
-            Destroy(_activeCueObject);
-            _activeCueObject = null;
+            Debug.LogWarning($"NavigationGuidance could not show cue '{cue.GetResolvedLabel()}' because no prefab is assigned.");
+            cue.IsCompleted = true;
+            return;
         }
 
-        _activeCueObject = Instantiate(guidancePrefab, userCamera.transform);
-        _activeCueObject.transform.localPosition = defaultLocalPosition + cue.localPositionOffset;
-        _activeCueObject.transform.localRotation = Quaternion.Euler(defaultLocalEuler + cue.localEulerOffset);
+        GameObject cueObject = Instantiate(prefabToSpawn);
+        Transform cueTransform = cueObject.transform;
 
-        Vector3 scale = new Vector3(
-            defaultLocalScale.x * cue.localScaleMultiplier.x,
-            defaultLocalScale.y * cue.localScaleMultiplier.y,
-            defaultLocalScale.z * cue.localScaleMultiplier.z
+        if (spawnedCueContainer != null)
+        {
+            cueTransform.SetParent(spawnedCueContainer, worldPositionStays: true);
+        }
+
+        cueTransform.SetPositionAndRotation(
+            cue.anchor.TransformPoint(cue.localPositionOffset),
+            cue.anchor.rotation * Quaternion.Euler(cue.localEulerOffset)
         );
-        _activeCueObject.transform.localScale = scale;
+        cueTransform.localScale = cue.localScale;
 
-        TryApplyCueTexture(_activeCueObject, cue.textureResourcePath);
-        Debug.Log($"Navigation cue: {cue.GetResolvedLabel()} at {_totalDistanceTravelledMeters:F1}m");
+        TryApplyCueTexture(cueObject, cue);
 
-        float duration = Mathf.Max(0f, cue.visibleDurationSeconds);
-        if (duration > 0f)
-        {
-            Destroy(_activeCueObject, duration);
-        }
+        cue.ActiveInstance = cueObject;
+        cue.ActiveRenderers = cueObject.GetComponentsInChildren<Renderer>(includeInactive: true);
+        cue.HasBeenShown = true;
+        cue.IsFadingOut = false;
+        cue.CurrentAlpha = 0f;
+        SetCueAlpha(cue, 0f);
+
+        Debug.Log($"Navigation cue shown: {cue.GetResolvedLabel()}");
     }
 
 
-    private void TryApplyCueTexture(GameObject cueObject, string texturePath)
+    private void BeginHideCue(NavigationCue cue)
     {
-        if (string.IsNullOrWhiteSpace(texturePath))
+        if (cue.ActiveInstance == null)
         {
+            cue.IsCompleted = true;
             return;
         }
 
-        Texture texture = Resources.Load<Texture>(texturePath);
-        if (texture == null)
+        cue.IsFadingOut = true;
+    }
+
+
+    private void HideCueImmediately(NavigationCue cue, bool markCompleted)
+    {
+        if (cue.ActiveInstance != null)
         {
-            Debug.LogWarning($"NavigationGuidance could not find texture at Resources/{texturePath}");
-            return;
+            Destroy(cue.ActiveInstance);
+            cue.ActiveInstance = null;
         }
+
+        cue.ActiveRenderers = null;
+        cue.IsFadingOut = false;
+        cue.IsCompleted = markCompleted;
+    }
+
+
+    private void TryApplyCueTexture(GameObject cueObject, NavigationCue cue)
+    {
+        Material baseMaterial = cue.materialOverride != null ? cue.materialOverride : guidanceMaterial;
 
         MeshRenderer meshRenderer = cueObject.GetComponent<MeshRenderer>();
         if (meshRenderer == null)
         {
-            Debug.LogWarning("NavigationGuidance cue prefab has no MeshRenderer. Texture was not applied.");
+            meshRenderer = cueObject.GetComponentInChildren<MeshRenderer>();
+        }
+
+        if (meshRenderer == null)
+        {
+            Debug.LogWarning($"NavigationGuidance cue '{cue.GetResolvedLabel()}' has no MeshRenderer. Texture was not applied.");
             return;
         }
 
-        Material runtimeMaterial;
-        if (guidanceMaterial != null)
+        Material runtimeMaterial = baseMaterial != null
+            ? new Material(baseMaterial)
+            : new Material(meshRenderer.material);
+
+        if (!string.IsNullOrWhiteSpace(cue.textureResourcePath))
         {
-            runtimeMaterial = new Material(guidanceMaterial);
-        }
-        else
-        {
-            runtimeMaterial = new Material(meshRenderer.material);
+            Texture texture = Resources.Load<Texture>(cue.textureResourcePath);
+            if (texture == null)
+            {
+                Debug.LogWarning($"NavigationGuidance could not find texture at Resources/{cue.textureResourcePath}");
+            }
+            else
+            {
+                runtimeMaterial.mainTexture = texture;
+            }
         }
 
-        runtimeMaterial.mainTexture = texture;
         meshRenderer.material = runtimeMaterial;
+    }
+
+
+    private void UpdateCueFade(NavigationCue cue)
+    {
+        if (cue.ActiveInstance == null || cue.ActiveRenderers == null || cue.ActiveRenderers.Length == 0)
+        {
+            return;
+        }
+
+        float fadeDuration = cue.IsFadingOut
+            ? Mathf.Max(0.01f, cue.fadeOutDurationSeconds)
+            : Mathf.Max(0.01f, cue.fadeInDurationSeconds);
+
+        float alphaDelta = Time.deltaTime / fadeDuration;
+        cue.CurrentAlpha = cue.IsFadingOut
+            ? Mathf.Max(0f, cue.CurrentAlpha - alphaDelta)
+            : Mathf.Min(1f, cue.CurrentAlpha + alphaDelta);
+
+        SetCueAlpha(cue, cue.CurrentAlpha);
+
+        if (cue.IsFadingOut && cue.CurrentAlpha <= 0f)
+        {
+            HideCueImmediately(cue, markCompleted: true);
+        }
+    }
+
+
+    private void SetCueAlpha(NavigationCue cue, float alpha)
+    {
+        if (cue.ActiveRenderers == null) return;
+
+        for (int i = 0; i < cue.ActiveRenderers.Length; i++)
+        {
+            Renderer rendererComponent = cue.ActiveRenderers[i];
+            if (rendererComponent == null) continue;
+
+            Material[] materials = rendererComponent.materials;
+            for (int j = 0; j < materials.Length; j++)
+            {
+                Material material = materials[j];
+                if (material == null || !material.HasProperty("_Color")) continue;
+
+                Color color = material.color;
+                color.a = alpha;
+                material.color = color;
+            }
+        }
+    }
+
+
+    private void OnDestroy()
+    {
+        ResetProgress();
     }
 }
