@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 
 public enum NavigationDirection
@@ -275,6 +276,8 @@ public class NavigationGuidance : MonoBehaviour
             ? new Material(baseMaterial)
             : new Material(meshRenderer.material);
 
+        ConfigureMaterialForFade(runtimeMaterial);
+
         if (!string.IsNullOrWhiteSpace(cue.textureResourcePath))
         {
             Texture texture = Resources.Load<Texture>(cue.textureResourcePath);
@@ -289,6 +292,42 @@ public class NavigationGuidance : MonoBehaviour
         }
 
         meshRenderer.material = runtimeMaterial;
+    }
+
+
+    private void ConfigureMaterialForFade(Material material)
+    {
+        if (material == null) return;
+
+        // Standard shader style transparency setup.
+        if (material.HasProperty("_Mode"))
+        {
+            material.SetFloat("_Mode", 2f);
+            material.SetInt("_SrcBlend", (int)BlendMode.SrcAlpha);
+            material.SetInt("_DstBlend", (int)BlendMode.OneMinusSrcAlpha);
+            material.SetInt("_ZWrite", 0);
+            material.DisableKeyword("_ALPHATEST_ON");
+            material.EnableKeyword("_ALPHABLEND_ON");
+            material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+            material.renderQueue = (int)RenderQueue.Transparent;
+        }
+
+        // URP/HDRP style transparency setup.
+        if (material.HasProperty("_Surface"))
+        {
+            material.SetFloat("_Surface", 1f);
+            material.renderQueue = (int)RenderQueue.Transparent;
+        }
+
+        if (material.HasProperty("_Blend"))
+        {
+            material.SetFloat("_Blend", 0f);
+        }
+
+        if (material.HasProperty("_AlphaClip"))
+        {
+            material.SetFloat("_AlphaClip", 0f);
+        }
     }
 
 
@@ -330,11 +369,21 @@ public class NavigationGuidance : MonoBehaviour
             for (int j = 0; j < materials.Length; j++)
             {
                 Material material = materials[j];
-                if (material == null || !material.HasProperty("_Color")) continue;
+                if (material == null) continue;
 
-                Color color = material.color;
-                color.a = alpha;
-                material.color = color;
+                if (material.HasProperty("_Color"))
+                {
+                    Color color = material.color;
+                    color.a = alpha;
+                    material.color = color;
+                }
+
+                if (material.HasProperty("_BaseColor"))
+                {
+                    Color baseColor = material.GetColor("_BaseColor");
+                    baseColor.a = alpha;
+                    material.SetColor("_BaseColor", baseColor);
+                }
             }
         }
     }
