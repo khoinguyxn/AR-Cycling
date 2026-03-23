@@ -1,0 +1,4 @@
+AudioPluginMicrosoftSpatializerCrossPlatform.dll
+HrtfDsp.dll
+openxr_loader.dll
+UnityOpenXRHands.dll

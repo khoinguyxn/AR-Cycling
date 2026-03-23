@@ -38,7 +38,7 @@ public class SpawnNotification : MonoBehaviour
     [SerializeField] private float exportInterval = 1f;
 
     private SpawnPosition leftPosition = new SpawnPosition(new Vector3(-1.5f, 0, 0), new Vector3(0, 0, 0), new Vector3(1, 1, 1));
-    private SpawnPosition topPosition = new SpawnPosition(new Vector3(0, 2f, 0), new Vector3(0, 0, 0), new Vector3(1, 1, 1));
+    private SpawnPosition topPosition = new SpawnPosition(new Vector3(0, 1.5f, 0), new Vector3(0, 0, 0), new Vector3(1, 1, 1));
 
 
 
@@ -247,33 +247,40 @@ public class SpawnNotification : MonoBehaviour
         {
             new List<(Notification, float)>
             {
-                (CreateModel(true, leftPosition, "Models/waterfountain/WaterFountain", new Vector3(20, 20, 20), 5), 5),
-                (CreateModel(true, leftPosition, "Models/Toilet/Toilet", new Vector3(50, 50, 50), 5), 65), //ML1
-                (CreateSprite(true, topPosition, "SignImages/dangerous_intersection"), 195), //ST1
-                (CreateModel(true, topPosition, "Models/Cafe/Cafe", new Vector3(50, 50, 50), 5), 47), //MT1
-                (CreateSprite(true, leftPosition, "SignImages/school_of_biological_science"), 85), //SL1
-                (CreateModel(true, topPosition, "Models/waterfountain/WaterFountain", new Vector3(20, 20, 20), 5),  135), //MT2
-                (CreateSprite(true, topPosition, "SignImages/bus_loop"), 181), //ST2
-                (CreateSprite(true, leftPosition, "SignImages/watch_for_pedestrians"), 108), //SL2
-                (CreateModel(true, leftPosition, "Models/Sushi/salmonroe", new Vector3(15, 15, 15), 5), 106), //ML2
-                (CreateSprite(true, topPosition, "SignImages/library"), 143), //ST3
-                (CreateModel(true, leftPosition, "Models/Donut/donut", new Vector3(150, 150, 150), 5), 138), //ML3
-                (CreateSprite(true, leftPosition, "SignImages/give_way"), 130), //SL3
+                (CreateSprite(true, topPosition, "SignImages/start"), 3), 
+              //  (CreateModel(true, leftPosition, "Models/Toilet/Toilet", new Vector3(30, 30, 30), 5), 15), //ML1
+                (CreateSprite(true, topPosition, "SignImages/dangerous_intersection"), 55), //ST1
+                (CreateSprite(true, leftPosition, "SignImages/watch_for_pedestrians"), 45),
+                (CreateSprite(true, topPosition, "SignImages/dangerous_intersection"), 100), //SL1
+              //  (CreateModel(true, topPosition, "Models/Toilet/Toilet", new Vector3(20, 20, 20), 5),  120), //MT2
+                (CreateSprite(true, leftPosition, "SignImages/40_zone"), 33), //ST2
+                (CreateSprite(true, leftPosition, "SignImages/watch_for_pedestrians"), 50), //SL2
+             //   (CreateModel(true, leftPosition, "Models/Sushi/salmonroe", new Vector3(15, 15, 15), 5), 106), //ML2
+                (CreateSprite(true, topPosition, "SignImages/cafe"), 100), //ST3
+              //  (CreateModel(true, leftPosition, "Models/Donut/donut", new Vector3(150, 150, 150), 5), 138), //ML3
+                (CreateSprite(true, leftPosition, "SignImages/library"), 45), //SL3
+                (CreateSprite(true, topPosition, "SignImages/dangerous_intersection"), 45),
+                (CreateSprite(true, leftPosition, "SignImages/cafe"), 100),
+                (CreateSprite(true, topPosition, "SignImages/watch_for_pedestrians"), 55),
+                (CreateSprite(true, topPosition, "SignImages/40_zone"), 65),
+                 (CreateSprite(true, topPosition, "SignImages/give_way"), 100),
+                 (CreateSprite(true, topPosition, "SignImages/start"), 75),
+
             }
 
             /*
-            5 - Maccas
+            4 - Maccas
             65 - Toilet
             195 - Dangerous intersection
-            47 - Cafe   // 32m will appear when turn so adding 15m
+            45 - Cafe   // 32m will appear when turn so adding 15m
             85 - School of biological science
-            145 - Spinning top
+            120 - Spinning top
             181 - Monash bus loop
             108 - Watch for pedestrian
             106 - Maccas        /// adding 20m more
             143 - Library
             138 - donut
-            155 - Give way
+            130 - Give way
             */
         };
 
