@@ -24,6 +24,7 @@ public class Sprite : Notification
     public override GameObject SpawnObject(Vector3 position, Quaternion rotation, Vector3 localScale)
     {
         GameObject spriteObject = Instantiate(signObject, position + spawnPosition.GetYDisplacementVector(), rotation * spawnPosition.GetRotation());
+        spriteObject.name = GetExportName();
         spriteObject.transform.localScale = GetLocalScale(localScale);
         signMaterial.mainTexture = texture;
 

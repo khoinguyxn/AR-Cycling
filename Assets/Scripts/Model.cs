@@ -68,6 +68,7 @@ public class Model : Notification
     public override GameObject SpawnObject(Vector3 position, Quaternion rotation, Vector3 localScale)
     {
         GameObject modelObject = Instantiate(model, position + spawnPosition.GetYDisplacementVector(), rotation * spawnPosition.GetRotation());
+        modelObject.name = GetExportName();
         Vector3 totalScale = new Vector3(modelScale.x * localScale.x, modelScale.y * localScale.y, modelScale.z * localScale.z);
         modelObject.transform.localScale = GetLocalScale(totalScale);
         AddStatefulInteractable(modelObject);
