@@ -26,12 +26,13 @@ public class Sprite : Notification
         GameObject spriteObject = Instantiate(signObject, position + spawnPosition.GetYDisplacementVector(), rotation * spawnPosition.GetRotation());
         spriteObject.name = GetExportName();
         spriteObject.transform.localScale = GetLocalScale(localScale);
-        signMaterial.mainTexture = texture;
 
         MeshRenderer imageMeshRenderer = spriteObject.GetComponent<MeshRenderer>();
         if (imageMeshRenderer != null)
         {
-            imageMeshRenderer.material = signMaterial;
+            Material runtimeMaterial = new Material(signMaterial);
+            runtimeMaterial.mainTexture = texture;
+            imageMeshRenderer.material = runtimeMaterial;
         }
 
         return spriteObject;
