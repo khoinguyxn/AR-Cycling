@@ -35,4 +35,10 @@ public class Sprite : Notification
 
         return spriteObject;
     }
+
+
+    public override string GetExportName()
+    {
+        return texture != null ? texture.name : signObject.name;
+    }
 }

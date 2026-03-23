@@ -75,4 +75,10 @@ public class Model : Notification
         AddAnimation(modelObject);
         return modelObject;
     }
+
+
+    public override string GetExportName()
+    {
+        return model != null ? model.name : "Model";
+    }
 }

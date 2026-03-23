@@ -30,5 +30,8 @@ public abstract class Notification : Object
     }
 
 
+    public abstract string GetExportName();
+
+
     public abstract GameObject SpawnObject(Vector3 position, Quaternion rotation, Vector3 localScale);
 }

@@ -181,7 +181,7 @@ public class SpawnNotification : MonoBehaviour
         _gameObjectSpawnTimeExporter.AddData(new GameObjectSpawnTimeDatum
         {
             TimeStampLocal = DateTimeOffset.Now.ToString("O"),
-            Object = currentObject.name
+            Object = notification.GetExportName()
         }.ToString());
 
         _debugExporter.AddData(new DebugNotificationDatum

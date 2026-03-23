@@ -205,6 +205,7 @@ public class NavigationGuidance : MonoBehaviour
 
         GameObject cueObject = Instantiate(prefabToSpawn);
         Transform cueTransform = cueObject.transform;
+        cueObject.name = cue.anchor != null ? cue.anchor.name : cue.GetResolvedLabel();
 
         if (spawnedCueContainer != null)
         {
