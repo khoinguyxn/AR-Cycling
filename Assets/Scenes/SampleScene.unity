@@ -605,7 +605,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   notificationListIndex: 0
-  spawnDistance: 35
+  spawnDistance: 28
   notificationControl: {fileID: 1163151096}
   userCamera: {fileID: 777067287}
   signObject: {fileID: 7004894785395504756, guid: 60426f2fe3aaebc498936f41f8ecf827, type: 3}
@@ -702,7 +702,7 @@ Transform:
   m_GameObject: {fileID: 1223087181}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 2}
+  m_LocalPosition: {x: 0, y: 0, z: 280}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

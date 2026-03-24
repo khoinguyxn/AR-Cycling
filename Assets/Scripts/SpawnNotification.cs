@@ -247,24 +247,25 @@ public class SpawnNotification : MonoBehaviour
         {
             new List<(Notification, float)>
             {
-                (CreateSprite(true, topPosition, "SignImages/start"), 3), 
+                (CreateSprite(true, topPosition, "SignImages/start"), 8), 
               //  (CreateModel(true, leftPosition, "Models/Toilet/Toilet", new Vector3(30, 30, 30), 5), 15), //ML1
-                (CreateSprite(true, topPosition, "SignImages/dangerous_intersection"), 55), //ST1
-                (CreateSprite(true, leftPosition, "SignImages/watch_for_pedestrians"), 45),
-                (CreateSprite(true, topPosition, "SignImages/dangerous_intersection"), 100), //SL1
+                (CreateSprite(false, leftPosition, "SignImages/cafe-both"), 55), //ST1 55 
+                (CreateSprite(true, topPosition, "SignImages/bike-icon"), 55), // 65
+                (CreateSprite(false, topPosition, "SignImages/intersection-text"), 155), //SL1
               //  (CreateModel(true, topPosition, "Models/Toilet/Toilet", new Vector3(20, 20, 20), 5),  120), //MT2
-                (CreateSprite(true, leftPosition, "SignImages/40_zone"), 33), //ST2
-                (CreateSprite(true, leftPosition, "SignImages/watch_for_pedestrians"), 50), //SL2
+                (CreateSprite(true, leftPosition, "SignImages/pede-both"), 75), //ST2
+                (CreateSprite(false, leftPosition, "SignImages/garden-text"), 55), //SL2
              //   (CreateModel(true, leftPosition, "Models/Sushi/salmonroe", new Vector3(15, 15, 15), 5), 106), //ML2
-                (CreateSprite(true, topPosition, "SignImages/cafe"), 100), //ST3
+                (CreateSprite(false, topPosition, "SignImages/bike-text"), 95), //ST3
               //  (CreateModel(true, leftPosition, "Models/Donut/donut", new Vector3(150, 150, 150), 5), 138), //ML3
-                (CreateSprite(true, leftPosition, "SignImages/library"), 45), //SL3
-                (CreateSprite(true, topPosition, "SignImages/dangerous_intersection"), 45),
-                (CreateSprite(true, leftPosition, "SignImages/cafe"), 100),
-                (CreateSprite(true, topPosition, "SignImages/watch_for_pedestrians"), 55),
-                (CreateSprite(true, topPosition, "SignImages/40_zone"), 65),
-                 (CreateSprite(true, topPosition, "SignImages/give_way"), 100),
-                 (CreateSprite(true, topPosition, "SignImages/start"), 75),
+                (CreateSprite(true, topPosition, "SignImages/cafe-text"), 50), //SL3
+                (CreateSprite(true, leftPosition, "SignImages/pede-icon"), 45),
+                (CreateSprite(false, leftPosition, "SignImages/intersection-icon"), 120),
+                (CreateSprite(true, topPosition, "SignImages/pede-text"), 75),
+                (CreateSprite(true, leftPosition, "SignImages/garden-both"), 55),
+                 (CreateSprite(false, topPosition, "SignImages/bike-both"), 95),
+                 (CreateSprite(false, topPosition, "SignImages/toilet-icon"), 50),
+                 (CreateSprite(true, leftPosition, "SignImages/garden-icon"), 65),
 
             }
 

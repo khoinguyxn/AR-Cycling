@@ -68,6 +68,7 @@ extern void Model_AddStatefulInteractable_m374810D0143004DB8975DA08F24F9CF719ED7
 extern void Model_AddCollider_mD3B243737BACD2202BA8A3C4E554EBDFA78263C9 (void);
 extern void Model_AddAnimation_mB9430242957A0E2631045B91B536D4C38FA77273 (void);
 extern void Model_SpawnObject_mFAA0CBC46E744A167A5A7F1CC17F7495E02EEFCE (void);
+extern void Model_GetExportName_m13CE8C6E2F2F1EA2DE0EF05C096F4F812731203C (void);
 extern void NavigationCue_GetResolvedLabel_mB453C73E15CCDDD4DCAF828A47455E5BCE88D16C (void);
 extern void NavigationCue__ctor_m0AA5B012608FA691FBAA4623B4893FE022A34A00 (void);
 extern void NavigationGuidance_Start_mFC1C3DDFDD72BE835C6BF5840A605E55AB07D4EB (void);
@@ -200,9 +201,10 @@ extern void SpinningAnimation_Update_mCE6A5E73EF5F0298E4707D92F9FF2211FE6CC18E (
 extern void SpinningAnimation__ctor_m390F4844F63BC4D99300324A8614C564138CA692 (void);
 extern void Sprite__ctor_m83CCD1E3A494AD67C191B3759FA08AEC27DA887B (void);
 extern void Sprite_SpawnObject_m98A87032D16A43D82327CE7A3FE75CBDC6D5DFF1 (void);
+extern void Sprite_GetExportName_mAA71244C730F5B5A6EFF532BE0E6B9056CFD75C2 (void);
 extern void UnitySourceGeneratedAssemblyMonoScriptTypes_v1_Get_mBEB95BEB954BB63E9710BBC7AD5E78C4CB0A0033 (void);
 extern void UnitySourceGeneratedAssemblyMonoScriptTypes_v1__ctor_mE70FB23ACC1EA12ABC948AA22C2E78B2D0AA39B1 (void);
-static Il2CppMethodPointer s_methodPointers[196] = 
+static Il2CppMethodPointer s_methodPointers[199] = 
 {
 	EmbeddedAttribute__ctor_m68CAD82666F0FF415043D7DC217986AA2D3133D1,
 	NullableAttribute__ctor_m771BA0E8EFE1DD8AAAE9E2B867CCF4D3AE8834C7,
@@ -265,6 +267,7 @@ static Il2CppMethodPointer s_methodPointers[196] =
 	Model_AddCollider_mD3B243737BACD2202BA8A3C4E554EBDFA78263C9,
 	Model_AddAnimation_mB9430242957A0E2631045B91B536D4C38FA77273,
 	Model_SpawnObject_mFAA0CBC46E744A167A5A7F1CC17F7495E02EEFCE,
+	Model_GetExportName_m13CE8C6E2F2F1EA2DE0EF05C096F4F812731203C,
 	NavigationCue_GetResolvedLabel_mB453C73E15CCDDD4DCAF828A47455E5BCE88D16C,
 	NavigationCue__ctor_m0AA5B012608FA691FBAA4623B4893FE022A34A00,
 	NavigationGuidance_Start_mFC1C3DDFDD72BE835C6BF5840A605E55AB07D4EB,
@@ -283,6 +286,7 @@ static Il2CppMethodPointer s_methodPointers[196] =
 	Notification_GetPlayAudio_m698A80BBD10DD41C30B6682BDA2B626F0C3D59BD,
 	Notification_GetLocalScale_m23ED1461CE8D9480A0AF62D94D1E391A31A8883E,
 	Notification_GetPositionXDisplacement_m54C457B014259146CA29B87CDFBFD1E51EE43A7E,
+	NULL,
 	NULL,
 	Notification__ctor_m5DC97CC139CC1E6A900EA494D650152F806D7CAB,
 	ReactionTimeTracker_Awake_m71C2CB86107B8431126670BE7C0B6947D219E978,
@@ -398,10 +402,11 @@ static Il2CppMethodPointer s_methodPointers[196] =
 	SpinningAnimation__ctor_m390F4844F63BC4D99300324A8614C564138CA692,
 	Sprite__ctor_m83CCD1E3A494AD67C191B3759FA08AEC27DA887B,
 	Sprite_SpawnObject_m98A87032D16A43D82327CE7A3FE75CBDC6D5DFF1,
+	Sprite_GetExportName_mAA71244C730F5B5A6EFF532BE0E6B9056CFD75C2,
 	UnitySourceGeneratedAssemblyMonoScriptTypes_v1_Get_mBEB95BEB954BB63E9710BBC7AD5E78C4CB0A0033,
 	UnitySourceGeneratedAssemblyMonoScriptTypes_v1__ctor_mE70FB23ACC1EA12ABC948AA22C2E78B2D0AA39B1,
 };
-static const int32_t s_InvokerIndices[196] = 
+static const int32_t s_InvokerIndices[199] = 
 {
 	12020,
 	9335,
@@ -465,6 +470,7 @@ static const int32_t s_InvokerIndices[196] =
 	9509,
 	2035,
 	11853,
+	11853,
 	12020,
 	12020,
 	12020,
@@ -482,6 +488,7 @@ static const int32_t s_InvokerIndices[196] =
 	11684,
 	8598,
 	11926,
+	-1,
 	-1,
 	12020,
 	12020,
@@ -597,6 +604,7 @@ static const int32_t s_InvokerIndices[196] =
 	12020,
 	701,
 	2035,
+	11853,
 	19020,
 	12020,
 };
@@ -604,7 +612,7 @@ IL2CPP_EXTERN_C const Il2CppCodeGenModule g_AssemblyU2DCSharp_CodeGenModule;
 const Il2CppCodeGenModule g_AssemblyU2DCSharp_CodeGenModule = 
 {
 	"Assembly-CSharp.dll",
-	196,
+	199,
 	s_methodPointers,
 	0,
 	NULL,
