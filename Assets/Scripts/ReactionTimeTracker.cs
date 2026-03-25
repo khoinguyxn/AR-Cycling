@@ -8,6 +8,7 @@ public class ReactionTimeTracker : MonoBehaviour
 
     private CsvExporter _reactionTimeExporter;
     private bool _waitingForResponse = false;
+    private float _lastObservedAudioPlayRealtime = -1f;
     private float _currentAudioPlayRealtime = -1f;
     private string _currentAudioPlayTimestampLocal = "";
 
@@ -42,13 +43,14 @@ public class ReactionTimeTracker : MonoBehaviour
         float audioPlayRealtime = audioManager.LastAudioPlayRealtime;
 
         // New audio has been played
-        if (audioPlayRealtime > 0 && !Mathf.Approximately(audioPlayRealtime, _currentAudioPlayRealtime))
+        if (audioPlayRealtime > 0 && !Mathf.Approximately(audioPlayRealtime, _lastObservedAudioPlayRealtime))
         {
             if (_waitingForResponse)
             {
                 RecordMissedResponse();
             }
 
+            _lastObservedAudioPlayRealtime = audioPlayRealtime;
             _currentAudioPlayRealtime = audioPlayRealtime;
             _currentAudioPlayTimestampLocal = audioManager.LastAudioPlayTimestampLocal;
             _waitingForResponse = true;
