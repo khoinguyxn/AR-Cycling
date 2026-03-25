@@ -5,7 +5,6 @@ public class ReactionTimeTracker : MonoBehaviour
 {
     //ATTRIBUTES
     [SerializeField] private AudioManager audioManager;
-    [SerializeField] private float reactionTimeoutWindow = 6f; // 6 seconds window for valid reactions
 
     private CsvExporter _reactionTimeExporter;
     private bool _waitingForResponse = false;
@@ -32,7 +31,6 @@ public class ReactionTimeTracker : MonoBehaviour
     {
         CheckForAudioPlay();
         CheckForButtonPress();
-        CheckForMissedResponse();
 
         _reactionTimeExporter.ExportRecentData();
     }
@@ -46,6 +44,11 @@ public class ReactionTimeTracker : MonoBehaviour
         // New audio has been played
         if (audioPlayRealtime > 0 && !Mathf.Approximately(audioPlayRealtime, _currentAudioPlayRealtime))
         {
+            if (_waitingForResponse)
+            {
+                RecordMissedResponse();
+            }
+
             _currentAudioPlayRealtime = audioPlayRealtime;
             _currentAudioPlayTimestampLocal = audioManager.LastAudioPlayTimestampLocal;
             _waitingForResponse = true;
@@ -60,10 +63,9 @@ public class ReactionTimeTracker : MonoBehaviour
             float buttonPressRealtime = Time.realtimeSinceStartup;
             string buttonPressTimestampLocal = DateTimeOffset.Now.ToString("O");
 
-            // Check if this is a response to recent audio
-            if (_waitingForResponse && (buttonPressRealtime - _currentAudioPlayRealtime) <= reactionTimeoutWindow)
+            // The first button press after an audio consumes that audio event.
+            if (_waitingForResponse)
             {
-                // Valid reaction
                 float reactionTime = (buttonPressRealtime - _currentAudioPlayRealtime) * 1000; // Convert to milliseconds
 
                 _reactionTimeExporter.AddData(new ReactionTimeDatum
@@ -75,32 +77,16 @@ public class ReactionTimeTracker : MonoBehaviour
                     ResponseType = "ValidResponse"
                 }.ToString());
 
-                _waitingForResponse = false;
+                ClearCurrentAudioState();
 
                 Debug.Log($"Valid reaction: {reactionTime:F2}ms");
             }
-            else if (_currentAudioPlayRealtime > 0 && (buttonPressRealtime - _currentAudioPlayRealtime) > reactionTimeoutWindow)
-            {
-                // Late response (outside timeout window)
-                float reactionTime = (buttonPressRealtime - _currentAudioPlayRealtime) * 1000;
-
-                _reactionTimeExporter.AddData(new ReactionTimeDatum
-                {
-                    AudioPlayTimestampLocal = _currentAudioPlayTimestampLocal,
-                    ButtonPressTimestampLocal = buttonPressTimestampLocal,
-                    ReactionTimeMs = reactionTime,
-                    AudioType = "Audio",
-                    ResponseType = "LateResponse"
-                }.ToString());
-
-                Debug.Log($"Late response: {reactionTime:F2}ms (outside {reactionTimeoutWindow}s window)");
-            }
             else
             {
-                // False positive (button pressed without recent audio)
+                // False positive (button pressed without a pending audio event)
                 _reactionTimeExporter.AddData(new ReactionTimeDatum
                 {
-                    AudioPlayTimestampLocal = _currentAudioPlayRealtime > 0 ? _currentAudioPlayTimestampLocal : "",
+                    AudioPlayTimestampLocal = "",
                     ButtonPressTimestampLocal = buttonPressTimestampLocal,
                     ReactionTimeMs = -1,
                     AudioType = "None",
@@ -112,24 +98,27 @@ public class ReactionTimeTracker : MonoBehaviour
         }
     }
 
-    private void CheckForMissedResponse()
+    private void RecordMissedResponse()
     {
-        // Check if audio was played but no response within timeout window
-        if (_waitingForResponse && (Time.realtimeSinceStartup - _currentAudioPlayRealtime) > reactionTimeoutWindow)
+        _reactionTimeExporter.AddData(new ReactionTimeDatum
         {
-            _reactionTimeExporter.AddData(new ReactionTimeDatum
-            {
-                AudioPlayTimestampLocal = _currentAudioPlayTimestampLocal,
-                ButtonPressTimestampLocal = "",
-                ReactionTimeMs = -1,
-                AudioType = "Audio",
-                ResponseType = "MissedResponse"
-            }.ToString());
+            AudioPlayTimestampLocal = _currentAudioPlayTimestampLocal,
+            ButtonPressTimestampLocal = "",
+            ReactionTimeMs = -1,
+            AudioType = "Audio",
+            ResponseType = "MissedResponse"
+        }.ToString());
 
-            _waitingForResponse = false;
+        ClearCurrentAudioState();
 
-            Debug.Log($"Missed response: No button press within {reactionTimeoutWindow}s");
-        }
+        Debug.Log("Missed response: New audio played before any button press");
+    }
+
+    private void ClearCurrentAudioState()
+    {
+        _waitingForResponse = false;
+        _currentAudioPlayRealtime = -1f;
+        _currentAudioPlayTimestampLocal = "";
     }
 
     private void OnDestroy()
